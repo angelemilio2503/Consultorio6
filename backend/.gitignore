@@ -1,0 +1,80 @@
+<<<<<<< HEAD
+# Dependencias de Node.js
+node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Archivos de entorno y configuración sensibles
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+
+# Archivos de compilación
+dist/
+out/
+build/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# IDE y sistema operativo
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Ignorar dependencias
+node_modules/
+package-lock.json
+yarn.lock
+
+# Archivos de compilación
+dist/
+build/
+out/
+
+# Variables de entorno
+.env
+.env.local
+.env.production
+.env.development
+.env.test
+
+# Directorios de Vite y React
+.vite/
+.next/
+.cache/
+.vercel
+=======
+.vercel
+!dist/
+>>>>>>> f8cbe8d (Reconectando proyecto con GitHub)
+
+# Ignorar archivos y directorios de Docker
+Dockerfile
+docker-compose.yml
+docker-compose.override.yml
+.dockerignore
+.env.docker
+docker/
+.docker/
+docker-compose.*
+DOCKER_GUIDE.md
+<<<<<<< HEAD
+=======
+
+# Dependencias de Node.js
+# Node.js
+node_modules/
+dist/
+.env
+package-lock.json
+.DS_Store
+>>>>>>> f8cbe8d (Reconectando proyecto con GitHub)

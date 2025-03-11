@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "rootDir": "./sistema-consultorio/src",
+    "outDir": "./sistema-consultorio/dist",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "jsx": "react-jsx"  // Habilitar soporte JSX con React 17+
+  },
+  "include": ["./sistema-consultorio/src/**/*.{ts,tsx}"],
+  "exclude": ["node_modules"]
+}
