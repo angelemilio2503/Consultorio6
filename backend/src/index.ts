@@ -57,8 +57,8 @@ app.use('/api', citasRoutes);
 app.use(
   cors({
     origin: [
-      "http://localhost:5173", // Permitir localhost para desarrollo
-      "https://consultorio6-ek53.vercel.app", // Permitir el frontend en Vercel
+      "http://localhost:5173", // Para desarrollo local
+      "https://consultorio6-qpdj.vercel.app", // URL de Vercel (actualiza esta con la tuya)
     ],
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     credentials: true,
