@@ -62,10 +62,11 @@ const Login = () => {
         : { usuario: identifier, contrasena: password, rol: role };
 
         const response = await axios.post(
-          `${process.env.REACT_APP_BACKEND_URL}/auth/login`,  // ✅ Usa la variable de entorno
+          import.meta.env.VITE_API_URL + "/auth/login",
           loginData,
           { headers: { "Content-Type": "application/json" } }
         );
+        
 
       const { token, usuario } = response.data;
 

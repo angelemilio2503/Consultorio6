@@ -55,8 +55,8 @@ app.use('/api', citasRoutes);
 
 // Permitir solicitudes desde localhost:5173
 app.use(cors({
-  origin: 'http://localhost:5173',
-  methods: 'GET,POST,PUT,DELETE',
+  origin: ["http://localhost:5173", "https://consultorio6prueba.vercel.app"],
+  methods: "GET,POST,PUT,DELETE",
   credentials: true
 }));
 
