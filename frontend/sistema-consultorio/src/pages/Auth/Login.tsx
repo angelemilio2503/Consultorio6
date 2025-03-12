@@ -67,6 +67,7 @@ const Login = () => {
           { headers: { "Content-Type": "application/json" } }
         );
         
+        
 
       const { token, usuario } = response.data;
 
