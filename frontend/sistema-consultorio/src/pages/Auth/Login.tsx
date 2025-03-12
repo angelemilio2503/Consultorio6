@@ -61,6 +61,8 @@ const Login = () => {
         ? { email: identifier, contrasena: password, rol: role }
         : { usuario: identifier, contrasena: password, rol: role };
 
+        const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+
         const response = await axios.post(
           `${import.meta.env.VITE_API_URL}/auth/login`,
           loginData,
