@@ -62,7 +62,8 @@ const Login = () => {
         : { usuario: identifier, contrasena: password, rol: role };
 
         const API_URL = import.meta.env.VITE_API_URL;
-
+        console.log("API_URL:", API_URL); // 🔍 Verifica que no sea undefined
+        
         const response = await axios.post(`${API_URL}/auth/login`, loginData, {
           headers: { "Content-Type": "application/json" },
         });              
