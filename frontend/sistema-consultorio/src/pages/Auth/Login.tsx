@@ -16,7 +16,6 @@ import backgroundImage from "../../imagenes/consultorio.jpg";
 import { motion } from "framer-motion";
 import React from 'react';
 
-
 // Animaciones de entrada y salida para la página completa
 const pageTransition = {
   initial: { opacity: 0, y: 50 },
@@ -46,6 +45,8 @@ const Login = () => {
       };
     }, []);
 
+const API_URL = import.meta.env.VITE_API_URL || "https://consultorio5.onrender.com";
+
   const handleLogin = async () => {
     if (!identifier || !password || !role) {
       setError("Por favor, completa todos los campos");
@@ -61,11 +62,11 @@ const Login = () => {
         ? { email: identifier, contrasena: password, rol: role }
         : { usuario: identifier, contrasena: password, rol: role };
 
-      const response = await axios.post(
-        "http://localhost:3000/auth/login",
-        loginData,
-        { headers: { "Content-Type": "application/json" } }
-      );
+        const response = await axios.post(
+          `${API_URL}/auth/login`,
+          loginData,
+          { headers: { "Content-Type": "application/json" } }
+        );        
 
       const { token, usuario } = response.data;
 

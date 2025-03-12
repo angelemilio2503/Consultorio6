@@ -46,6 +46,11 @@ app.use(
 // 🚀 Habilitar el parsing de JSON
 app.use(express.json());
 
+// 📌 Agregar esta ruta para evitar "Cannot GET /"
+app.get("/", (req, res) => {
+  res.send("API en línea");
+});
+
 // 📌 Definición de rutas
 app.use("/auth", authRoutes);
 app.use("/doctores", doctoresRoutes);
