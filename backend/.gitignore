@@ -1,5 +1,4 @@
 .vercel
-!dist/
 
 # Ignorar archivos y directorios de Docker
 Dockerfile
