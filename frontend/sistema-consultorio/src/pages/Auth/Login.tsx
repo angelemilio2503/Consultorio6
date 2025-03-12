@@ -60,13 +60,14 @@ const Login = () => {
       const loginData = isEmail
         ? { email: identifier, contrasena: password, rol: role }
         : { usuario: identifier, contrasena: password, rol: role };
-
-        const API_URL = import.meta.env.VITE_API_URL;
-        console.log("API_URL:", API_URL); // 🔍 Verifica que no sea undefined
+        
+        const API_URL = import.meta.env.VITE_API_URL || "https://consultorio5.onrender.com"; 
+        console.log("API_URL:", API_URL);  // ✅ Esto te dirá si la variable está bien cargada
         
         const response = await axios.post(`${API_URL}/auth/login`, loginData, {
           headers: { "Content-Type": "application/json" },
-        });              
+        });
+               
         
       const { token, usuario } = response.data;
 
