@@ -13,7 +13,7 @@ DOCKER_GUIDE.md
 
 # Dependencias de Node.js
 # Node.js
-# node_modules/
+node_modules/
 .env
-package-lock.json
+# package-lock.json
 .DS_Store
