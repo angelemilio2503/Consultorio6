@@ -54,14 +54,16 @@ app.use("/", indexRoutes);
 app.use('/api', citasRoutes);
 
 // Permitir solicitudes desde localhost:5173
-app.use(cors({
-  origin: [
-    "https://consultorio6-6o1a-268umld8d-kato-citys-projects.vercel.app",
-    "http://localhost:5173"
-  ],
-  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-  credentials: true,
-}));
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173", // Permitir localhost para desarrollo
+      "https://consultorio6-ek53.vercel.app", // Permitir el frontend en Vercel
+    ],
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    credentials: true,
+  })
+);
 
 // 🛑 Middleware global para manejo de errores
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
