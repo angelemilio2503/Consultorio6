@@ -55,9 +55,12 @@ app.use('/api', citasRoutes);
 
 // Permitir solicitudes desde localhost:5173
 app.use(cors({
-  origin: ["http://localhost:5173", "https://consultorio6prueba.vercel.app"],
-  methods: "GET,POST,PUT,DELETE",
-  credentials: true
+  origin: [
+    "https://consultorio6-6o1a-268umld8d-kato-citys-projects.vercel.app",
+    "http://localhost:5173"
+  ],
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  credentials: true,
 }));
 
 // 🛑 Middleware global para manejo de errores
