@@ -53,15 +53,18 @@ app.use("/pacientes", pacientesRoutes);
 app.use("/", indexRoutes);
 app.use('/api', citasRoutes);
 
-// Permitir solicitudes desde localhost:5173
+
+// Definir la URL del frontend desplegado en Vercel
+const allowedOrigins = [
+  "https://consultorio6-qp.dj-kkjagxi04-kato-citys-projects.vercel.app", // Asegúrate de poner la URL correcta de Vercel
+  "http://localhost:5173", // Para permitir acceso desde desarrollo local
+];
+
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173", // Para desarrollo local
-      "https://consultorio6-qpdj.vercel.app", // URL de Vercel (actualiza esta con la tuya)
-    ],
+    origin: allowedOrigins,
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-    credentials: true,
+    credentials: true, // Para permitir cookies y headers de autenticación
   })
 );
 
