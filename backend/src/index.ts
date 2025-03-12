@@ -54,19 +54,16 @@ app.use("/", indexRoutes);
 app.use('/api', citasRoutes);
 
 
-// Definir la URL del frontend desplegado en Vercel
 const allowedOrigins = [
-  "https://consultorio6-qp.dj-kkjagxi04-kato-citys-projects.vercel.app", // Asegúrate de poner la URL correcta de Vercel
-  "http://localhost:5173", // Para permitir acceso desde desarrollo local
+  "https://consultorio6-9bn5-5dqiwlto9-kato-citys-projects.vercel.app", // URL de Vercel
+  "http://localhost:5173", // Para desarrollo local
 ];
 
-app.use(
-  cors({
-    origin: allowedOrigins,
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-    credentials: true, // Para permitir cookies y headers de autenticación
-  })
-);
+const corsOptions = {
+  origin: allowedOrigins,
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  credentials: true,
+};
 
 // 🛑 Middleware global para manejo de errores
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
@@ -81,12 +78,5 @@ app.listen(PORT, () => {
   console.error("❌ Error al iniciar el servidor:", err);
   process.exit(1);
 });
-
-// Configurar CORS para permitir varios orígenes
-const corsOptions = {
-  origin: ['http://localhost:5173', 'http://localhost:5174'], // Permitir ambos orígenes
-  methods: 'GET,POST,PUT,DELETE',
-  credentials: true, // Permitir cookies si es necesario
-};
 
 app.use(cors(corsOptions));

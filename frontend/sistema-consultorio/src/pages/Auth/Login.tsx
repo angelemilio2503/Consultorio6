@@ -61,7 +61,7 @@ const Login = () => {
         ? { email: identifier, contrasena: password, rol: role }
         : { usuario: identifier, contrasena: password, rol: role };
 
-        const API_URL = import.meta.env.VITE_API_URL || "https://consultorio5.onrender.com"; // Asegúrate de que sea la URL correcta
+        const API_URL = import.meta.env.VITE_API_URL;
 
         const response = await axios.post(`${API_URL}/auth/login`, loginData, {
           headers: { "Content-Type": "application/json" },
