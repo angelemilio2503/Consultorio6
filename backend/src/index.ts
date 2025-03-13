@@ -42,12 +42,19 @@ app.use(
 
 // ✅ Configuración de CORS con múltiples orígenes permitidos
 const allowedOrigins = [
-  process.env.FRONTEND_URL || "http://localhost:5173", // Frontend en Vercel o Local
+  "https://consultorio6-mega.vercel.app", // URL de tu frontend en Vercel
+  "http://localhost:5173" // Para desarrollo local
 ];
 
 app.use(
   cors({
-    origin: allowedOrigins,
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("🚫 No autorizado por CORS"));
+      }
+    },
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     credentials: true,
   })

@@ -18,7 +18,7 @@ import React from "react";
 
 // ✅ URL del backend obtenida desde .env (asegurando un fallback seguro)
 const API_URL = import.meta.env.VITE_API_URL || "https://consultorio5.onrender.com";
-console.log("🔹 API_URL cargada:", API_URL);
+console.log("API_URL cargada:", API_URL);
 
 // 🔹 Animaciones para transiciones en la UI
 const pageTransition = {
