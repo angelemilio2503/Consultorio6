@@ -6,9 +6,10 @@ import asyncHandler from "express-async-handler";
 
 const router = Router();
 
+// ✅ Ruta de inicio de sesión unificada para Admins y Doctores
 router.post(
   "/login",
-  asyncHandler(async (req: Request, res: Response) => {
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { usuario, contrasena, rol } = req.body;
 
     if (!usuario || !contrasena || !rol) {
@@ -18,7 +19,9 @@ router.post(
 
     try {
       let result;
+      let userType = rol;
 
+      // 🔍 Buscar en la tabla correspondiente según el rol
       if (rol === "Admin") {
         result = await pool.query("SELECT * FROM users WHERE usuario = $1", [usuario]);
       } else if (rol === "Doctor") {
@@ -35,12 +38,14 @@ router.post(
 
       const user = result.rows[0];
 
+      // 🔐 Verificar la contraseña
       const validPassword = await bcrypt.compare(contrasena, user.contrasena);
       if (!validPassword) {
         res.status(401).json({ mensaje: "Usuario o contraseña incorrecta" });
         return;
       }
 
+      // 🔑 Generar token JWT
       const token = jwt.sign(
         { id: user.id, usuario: user.usuario, rol: user.rol },
         process.env.JWT_SECRET as string,
@@ -53,7 +58,7 @@ router.post(
         usuario: {
           id: user.id,
           nombre: user.nombre,
-          rol: user.rol,
+          rol: user.rol || userType,
         },
       });
     } catch (error) {

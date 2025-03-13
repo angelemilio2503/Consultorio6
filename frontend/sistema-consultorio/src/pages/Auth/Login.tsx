@@ -14,19 +14,17 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import backgroundImage from "../../imagenes/consultorio.jpg";
 import { motion } from "framer-motion";
-import React from "react";
+import React from 'react';
 
-// ✅ URL del backend obtenida desde .env (asegurando un fallback seguro)
-const API_URL = import.meta.env.VITE_API_URL || "https://consultorio5.onrender.com";
-console.log("API_URL cargada:", API_URL);
 
-// 🔹 Animaciones para transiciones en la UI
+// Animaciones de entrada y salida para la página completa
 const pageTransition = {
   initial: { opacity: 0, y: 50 },
   animate: { opacity: 1, y: 0, transition: { duration: 0.8 } },
   exit: { opacity: 0, y: -50, transition: { duration: 0.5 } },
 };
 
+// Animación para el formulario
 const formTransition = {
   initial: { scale: 0.8, opacity: 0 },
   animate: { scale: 1, opacity: 1, transition: { duration: 0.5, delay: 0.3 } },
@@ -40,15 +38,14 @@ const Login = () => {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  // 🔒 Evitar retroceso después de iniciar sesión
-  useEffect(() => {
-    window.history.pushState(null, "", window.location.href);
-    window.onpopstate = () => {
+    // 🔒 Evitar retroceso a la página anterior después de iniciar sesión
+    useEffect(() => {
       window.history.pushState(null, "", window.location.href);
-    };
-  }, []);
+      window.onpopstate = () => {
+        window.history.pushState(null, "", window.location.href);
+      };
+    }, []);
 
-  // 🚀 Función para manejar el inicio de sesión
   const handleLogin = async () => {
     if (!identifier || !password || !role) {
       setError("Por favor, completa todos los campos");
@@ -63,26 +60,27 @@ const Login = () => {
       const loginData = isEmail
         ? { email: identifier, contrasena: password, rol: role }
         : { usuario: identifier, contrasena: password, rol: role };
-
-      console.log("🔹 Enviando solicitud a:", `${API_URL}/auth/login`);
-
-      const response = await axios.post(`${API_URL}/auth/login`, loginData, {
-        headers: { "Content-Type": "application/json" },
-      });
-
+        
+        const API_URL = import.meta.env.VITE_API_URL || "https://consultorio5.onrender.com"; 
+        console.log("API_URL:", API_URL);  // ✅ Esto te dirá si la variable está bien cargada
+        
+        const response = await axios.post(`${API_URL}/auth/login`, loginData, {
+          headers: { "Content-Type": "application/json" },
+        });
+               
+        
       const { token, usuario } = response.data;
 
-      // Guardar datos de usuario en localStorage
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(usuario));
 
-      alert(`✅ Inicio de sesión exitoso, bienvenido ${usuario.nombre}`);
+      alert(`Inicio de sesión exitoso, bienvenido ${usuario.nombre}`);
       navigate("/dashboard");
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
-        setError(error.response?.data?.mensaje || "❌ Usuario, contraseña o rol incorrectos");
+        setError(error.response?.data?.mensaje || "Usuario, contraseña o rol incorrectos");
       } else {
-        setError("⚠️ Error desconocido al iniciar sesión.");
+        setError("Error desconocido al iniciar sesión.");
       }
     } finally {
       setIsLoading(false);
@@ -90,7 +88,12 @@ const Login = () => {
   };
 
   return (
-    <motion.div variants={pageTransition} initial="initial" animate="animate" exit="exit">
+    <motion.div
+      variants={pageTransition}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+    >
       <Box
         sx={{
           backgroundImage: `url(${backgroundImage})`,
@@ -113,7 +116,10 @@ const Login = () => {
                 backgroundColor: "#FFFFFF",
               }}
             >
-              <Typography variant="h4" sx={{ color: "#0090FF", fontWeight: "bold", mb: 2 }}>
+              <Typography
+                variant="h4"
+                sx={{ color: "#0090FF", fontWeight: "bold", mb: 2 }}
+              >
                 Iniciar Sesión
               </Typography>
 
