@@ -42,24 +42,18 @@ app.use(
 );
 
 // ✅ Configuración de CORS con múltiples orígenes permitidos
-  const allowedOrigins = [
-    "https://consultorio6-mega-3u4nvrwxz-kato-citys-projects.vercel.app", // Reemplaza con tu dominio exacto de Vercel
-    "http://localhost:5173", // Para desarrollo local
-  ];
-  
-  app.use(
-    cors({
-      origin: function (origin, callback) {
-        if (!origin || allowedOrigins.includes(origin)) {
-          callback(null, true);
-        } else {
-          callback(new Error("🚫 No autorizado por CORS"));
-        }
-      },
-      methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-      credentials: true,
-    })
-  );
+const allowedOrigins = [
+  "https://consultorio6-mega-orgdqcig8-kato-citys-projects.vercel.app", // URL de Vercel (ajústala si cambia)
+  "http://localhost:5173", // Para desarrollo local
+];
+
+app.use(
+  cors({
+    origin: /vercel\.app$/, // Permite cualquier dominio de Vercel
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    credentials: true,
+  })
+);
 
 // 🚀 Habilitar el parsing de JSON
 app.use(express.json());
