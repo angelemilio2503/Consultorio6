@@ -13,7 +13,7 @@ import citasRoutes from "./routes/citas";
 dotenv.config(); // Cargar variables de entorno
 
 // ✅ Verificación de variables de entorno esenciales
-const requiredEnvVars = ["JWT_SECRET", "ENCRYPTION_SECRET", "DB_HOST"];
+const requiredEnvVars = ["JWT_SECRET", "ENCRYPTION_SECRET", "DATABASE_URL"];
 const missingEnvVars = requiredEnvVars.filter((varName) => !process.env[varName]);
 
 if (missingEnvVars.length > 0) {
@@ -42,8 +42,7 @@ app.use(
 
 // ✅ Configuración de CORS con múltiples orígenes permitidos
 const allowedOrigins = [
-  "https://consultorio6-9bn5-5dqiwlto9-kato-citys-projects.vercel.app", // URL de Vercel
-  "http://localhost:5173", // Para desarrollo local
+  process.env.FRONTEND_URL || "http://localhost:5173", // Frontend en Vercel o Local
 ];
 
 app.use(
