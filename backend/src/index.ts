@@ -12,19 +12,6 @@ import citasRoutes from "./routes/citas";
 
 dotenv.config(); // Cargar variables de entorno
 
-// ✅ Verificación de variables de entorno esenciales
-const requiredEnvVars = ["JWT_SECRET", "ENCRYPTION_SECRET", "DATABASE_URL"];
-const missingEnvVars = requiredEnvVars.filter((varName) => !process.env[varName]);
-
-if (missingEnvVars.length > 0) {
-  console.error(`❌ Error: Faltan variables de entorno requeridas: ${missingEnvVars.join(", ")}`);
-  process.exit(1);
-}
-
-console.log("✅ JWT_SECRET loaded:", process.env.JWT_SECRET ? "✔️ Loaded" : "❌ Not Loaded");
-console.log("✅ ENCRYPTION_SECRET length:", process.env.ENCRYPTION_SECRET?.length || "❌ Not Loaded");
-
-// 🚀 Configuración del servidor
 const PORT = process.env.PORT || 3000;
 const app = express();
 
@@ -35,18 +22,18 @@ app.use(helmet());
 app.use(
   rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutos
-    max: 100, // Límite de 100 solicitudes por IP
+    max: 100,
     message: "🚫 Demasiadas solicitudes desde esta IP. Intenta de nuevo más tarde.",
   })
 );
 
-// 📌 Lista de orígenes permitidos (Incluye Vercel y Localhost)
+// 📌 Lista de orígenes permitidos
 const allowedOrigins = [
-  "https://consultorio6-2cd6.vercel.app", // 🚀 Reemplaza con la URL correcta de tu frontend en Vercel
+  "https://consultorio6-2cd6-r3k2z4rp8-kato-citys-projects.vercel.app", // 🚀 Reemplaza con la URL correcta de tu frontend en Vercel
   "http://localhost:5173" // Para desarrollo local
 ];
 
-// 📌 Configuración de CORS permitiendo los orígenes indicados
+// 📌 Middleware de CORS
 app.use(
   cors({
     origin: function (origin, callback) {
