@@ -12,6 +12,7 @@ import citasRoutes from "./routes/citas";
 
 dotenv.config(); // Cargar variables de entorno
 
+
 // ✅ Verificación de variables de entorno esenciales
 const requiredEnvVars = ["JWT_SECRET", "ENCRYPTION_SECRET", "DB_HOST"];
 const missingEnvVars = requiredEnvVars.filter((varName) => !process.env[varName]);
@@ -27,6 +28,10 @@ console.log("✅ ENCRYPTION_SECRET length:", process.env.ENCRYPTION_SECRET?.leng
 // 🚀 Configuración del servidor
 const PORT = process.env.PORT || 3000;
 const app = express();
+
+app.get("/", (req: Request, res: Response) => {
+  res.send("🚀 API del Consultorio Médico está funcionando en Render.");
+});
 
 // 🔒 Configuración de seguridad con Helmet
 app.use(helmet());
