@@ -43,13 +43,13 @@ app.use(
 
 // ✅ Configuración de CORS con múltiples orígenes permitidos
 const allowedOrigins = [
-  "https://consultorio6-mega-orgdqcig8-kato-citys-projects.vercel.app", // URL de Vercel (ajústala si cambia)
-  "http://localhost:5173", // Para desarrollo local
+  "https://consultorio6-2cd6.vercel.app", // 📌 Cambia esto según la URL de Vercel actual
+  "http://localhost:5173" // Para desarrollo local
 ];
 
 app.use(
   cors({
-    origin: /vercel\.app$/, // Permite cualquier dominio de Vercel
+    origin: /vercel\.app$/, // 🔥 Permite cualquier subdominio en Vercel
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     credentials: true,
   })
