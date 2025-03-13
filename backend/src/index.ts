@@ -3,18 +3,21 @@ import cors from "cors";
 import * as dotenv from "dotenv";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
-import { pool } from "./database"; // ✅ Correcto
+import { pool } from "./database"; // ✅ Importar conexión a PostgreSQL
 import authRoutes from "./routes/auth.routes";
 import indexRoutes from "./routes/index";
 import doctoresRoutes from "./routes/doctores.routes";
 import pacientesRoutes from "./routes/pacientes.routes";
 import citasRoutes from "./routes/citas";
 
-dotenv.config();
+dotenv.config(); // Cargar variables de entorno
 
-// ✅ Verificación de variables de entorno
-if (!process.env.JWT_SECRET || !process.env.ENCRYPTION_SECRET || !process.env.DB_HOST) {
-  console.error("❌ Error: Faltan variables de entorno requeridas.");
+// ✅ Verificación de variables de entorno esenciales
+const requiredEnvVars = ["JWT_SECRET", "ENCRYPTION_SECRET", "DB_HOST"];
+const missingEnvVars = requiredEnvVars.filter((varName) => !process.env[varName]);
+
+if (missingEnvVars.length > 0) {
+  console.error(`❌ Error: Faltan variables de entorno requeridas: ${missingEnvVars.join(", ")}`);
   process.exit(1);
 }
 
@@ -29,12 +32,13 @@ const app = express();
 app.use(helmet());
 
 // 🔒 Configuración de rate limit para evitar ataques de fuerza bruta
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 100, // Límite de 100 solicitudes por IP
-  message: "🚫 Demasiadas solicitudes desde esta IP. Intenta de nuevo más tarde.",
-});
-app.use(limiter);
+app.use(
+  rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutos
+    max: 100, // Límite de 100 solicitudes por IP
+    message: "🚫 Demasiadas solicitudes desde esta IP. Intenta de nuevo más tarde.",
+  })
+);
 
 // ✅ Configuración de CORS con múltiples orígenes permitidos
 const allowedOrigins = [
@@ -42,13 +46,13 @@ const allowedOrigins = [
   "http://localhost:5173", // Para desarrollo local
 ];
 
-const corsOptions = {
-  origin: allowedOrigins,
-  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-  credentials: true,
-};
-
-app.use(cors(corsOptions)); // Asegurar que CORS se aplica antes de definir rutas
+app.use(
+  cors({
+    origin: allowedOrigins,
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    credentials: true,
+  })
+);
 
 // 🚀 Habilitar el parsing de JSON
 app.use(express.json());
@@ -64,7 +68,7 @@ app.use("/api", citasRoutes);
 app.get("/check-db", async (req: Request, res: Response) => {
   try {
     const result = await pool.query("SELECT NOW();"); // Prueba simple a PostgreSQL
-    res.json({ message: "Conexión exitosa a la base de datos", time: result.rows[0] });
+    res.json({ message: "✅ Conexión exitosa a la base de datos", time: result.rows[0] });
   } catch (error) {
     console.error("❌ Error en la conexión a la base de datos:", error);
     res.status(500).json({ message: "Error al conectar con la base de datos", error });
@@ -84,7 +88,7 @@ app.listen(PORT, async () => {
   // ✅ Verificar conexión con la base de datos al iniciar
   try {
     await pool.query("SELECT NOW();");
-    console.log("✅ Conectado a la base de datos PostgreSQL");
+    console.log("✅ Conectado a la base de datos PostgreSQL en Render");
   } catch (error) {
     console.error("❌ No se pudo conectar a la base de datos:", error);
   }
