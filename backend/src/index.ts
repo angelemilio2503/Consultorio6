@@ -12,7 +12,6 @@ import citasRoutes from "./routes/citas";
 
 dotenv.config(); // Cargar variables de entorno
 
-
 // ✅ Verificación de variables de entorno esenciales
 const requiredEnvVars = ["JWT_SECRET", "ENCRYPTION_SECRET", "DB_HOST"];
 const missingEnvVars = requiredEnvVars.filter((varName) => !process.env[varName]);
@@ -28,10 +27,6 @@ console.log("✅ ENCRYPTION_SECRET length:", process.env.ENCRYPTION_SECRET?.leng
 // 🚀 Configuración del servidor
 const PORT = process.env.PORT || 3000;
 const app = express();
-
-app.get("/", (req: Request, res: Response) => {
-  res.send("🚀 API del Consultorio Médico está funcionando en Render.");
-});
 
 // 🔒 Configuración de seguridad con Helmet
 app.use(helmet());
@@ -66,8 +61,12 @@ app.use(express.json());
 app.use("/auth", authRoutes);
 app.use("/doctores", doctoresRoutes);
 app.use("/pacientes", pacientesRoutes);
-app.use("/", indexRoutes);
 app.use("/api", citasRoutes);
+
+// ✅ Nueva ruta raíz para probar si el backend responde correctamente
+app.get("/", (req: Request, res: Response) => {
+  res.json({ message: "🚀 Backend funcionando correctamente en Render" });
+});
 
 // ✅ Ruta de prueba para verificar conexión a la base de datos
 app.get("/check-db", async (req: Request, res: Response) => {
