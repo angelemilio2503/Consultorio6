@@ -10,7 +10,6 @@ import doctoresRoutes from "./routes/doctores.routes";
 import pacientesRoutes from "./routes/pacientes.routes";
 import citasRoutes from "./routes/citas";
 
-
 dotenv.config(); // Cargar variables de entorno
 
 // ✅ Verificación de variables de entorno esenciales
@@ -29,10 +28,10 @@ console.log("✅ ENCRYPTION_SECRET length:", process.env.ENCRYPTION_SECRET?.leng
 const PORT = process.env.PORT || 3000;
 const app = express();
 
-// 🔒 Configuración de seguridad con Helmet
+// 🔒 Seguridad con Helmet
 app.use(helmet());
 
-// 🔒 Configuración de rate limit para evitar ataques de fuerza bruta
+// 🔒 Protección contra ataques de fuerza bruta con Rate Limit
 app.use(
   rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutos
@@ -41,21 +40,29 @@ app.use(
   })
 );
 
-// ✅ Configuración de CORS con múltiples orígenes permitidos
+// 📌 Lista de orígenes permitidos (Incluye Vercel y Localhost)
 const allowedOrigins = [
-  "https://consultorio6-2cd6.vercel.app", // 📌 Cambia esto según la URL de Vercel actual
+  "https://consultorio6-2cd6.vercel.app", // 🚀 Reemplaza con la URL correcta de tu frontend en Vercel
   "http://localhost:5173" // Para desarrollo local
 ];
 
+// 📌 Configuración de CORS permitiendo los orígenes indicados
 app.use(
   cors({
-    origin: /vercel\.app$/, // 🔥 Permite cualquier subdominio en Vercel
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        console.error("🚫 Bloqueado por CORS:", origin);
+        callback(new Error("🚫 No autorizado por CORS"));
+      }
+    },
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     credentials: true,
   })
 );
 
-// 🚀 Habilitar el parsing de JSON
+// 🚀 Middleware para procesar JSON
 app.use(express.json());
 
 // 📌 Definición de rutas
@@ -63,8 +70,9 @@ app.use("/auth", authRoutes);
 app.use("/doctores", doctoresRoutes);
 app.use("/pacientes", pacientesRoutes);
 app.use("/api", citasRoutes);
+app.use("/", indexRoutes);
 
-// ✅ Nueva ruta raíz para probar si el backend responde correctamente
+// ✅ Ruta de prueba para verificar el backend
 app.get("/", (req: Request, res: Response) => {
   res.json({ message: "🚀 Backend funcionando correctamente en Render" });
 });
@@ -72,7 +80,7 @@ app.get("/", (req: Request, res: Response) => {
 // ✅ Ruta de prueba para verificar conexión a la base de datos
 app.get("/check-db", async (req: Request, res: Response) => {
   try {
-    const result = await pool.query("SELECT NOW();"); // Prueba simple a PostgreSQL
+    const result = await pool.query("SELECT NOW();");
     res.json({ message: "✅ Conexión exitosa a la base de datos", time: result.rows[0] });
   } catch (error) {
     console.error("❌ Error en la conexión a la base de datos:", error);
@@ -80,7 +88,7 @@ app.get("/check-db", async (req: Request, res: Response) => {
   }
 });
 
-// 🛑 Middleware global para manejo de errores
+// ✅ Middleware para manejar errores
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   console.error("🔥 Error detectado:", err.message);
   res.status(500).json({ message: "Error interno del servidor" });
