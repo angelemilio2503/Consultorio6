@@ -80,12 +80,15 @@ app.use("/doctores", doctores_routes_1.default);
 app.use("/pacientes", pacientes_routes_1.default);
 app.use("/", index_1.default);
 app.use('/api', citas_1.default);
-// Permitir solicitudes desde localhost:5173
-app.use((0, cors_1.default)({
-    origin: 'http://localhost:5173',
-    methods: 'GET,POST,PUT,DELETE',
-    credentials: true
-}));
+const allowedOrigins = [
+    "https://consultorio6-9bn5-5dqiwlto9-kato-citys-projects.vercel.app", // URL de Vercel
+    "http://localhost:5173", // Para desarrollo local
+];
+const corsOptions = {
+    origin: allowedOrigins,
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    credentials: true,
+};
 // 🛑 Middleware global para manejo de errores
 app.use((err, req, res, next) => {
     console.error("🔥 Error detectado:", err.message);
@@ -98,10 +101,4 @@ app.listen(PORT, () => {
     console.error("❌ Error al iniciar el servidor:", err);
     process.exit(1);
 });
-// Configurar CORS para permitir varios orígenes
-const corsOptions = {
-    origin: ['http://localhost:5173', 'http://localhost:5174'], // Permitir ambos orígenes
-    methods: 'GET,POST,PUT,DELETE',
-    credentials: true, // Permitir cookies si es necesario
-};
 app.use((0, cors_1.default)(corsOptions));
