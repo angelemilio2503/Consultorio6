@@ -10,28 +10,28 @@ import { verifyToken, authorizeRole } from "../middlewares/auth.middleware";
 
 const router = Router();
 
-// 🔹 Usuarios
-router.get("/users", asyncHandler(getUsers));
-router.get("/users/:id", asyncHandler(getUserById));
-router.post("/users", asyncHandler(createUser));
-router.put("/users/:id", asyncHandler(updateUser));
-router.delete("/users/:id", asyncHandler(deleteUser));
+// ✅ Usuarios (Admins) - Se recomienda agregar autenticación si es necesario
+router.get("/users", verifyToken, authorizeRole("Admin"), asyncHandler(getUsers));
+router.get("/users/:id", verifyToken, authorizeRole("Admin"), asyncHandler(getUserById));
+router.post("/users", verifyToken, authorizeRole("Admin"), asyncHandler(createUser));
+router.put("/users/:id", verifyToken, authorizeRole("Admin"), asyncHandler(updateUser));
+router.delete("/users/:id", verifyToken, authorizeRole("Admin"), asyncHandler(deleteUser));
 
-// 🔹 Doctores
+// ✅ Doctores
 router.get("/doctores", verifyToken, asyncHandler(getDoctores));
 router.get("/doctores/:id", verifyToken, asyncHandler(getDoctoresById));
-router.post("/doctores", verifyToken, asyncHandler(createDoctores));
-router.put("/doctores/:id", verifyToken, asyncHandler(updateDoctores));
-router.delete("/doctores/:id", verifyToken, asyncHandler(deleteDoctores));
+router.post("/doctores", verifyToken, authorizeRole("Admin"), asyncHandler(createDoctores)); // Solo Admins pueden crear
+router.put("/doctores/:id", verifyToken, authorizeRole("Admin"), asyncHandler(updateDoctores));
+router.delete("/doctores/:id", verifyToken, authorizeRole("Admin"), asyncHandler(deleteDoctores));
 
-// 🔹 Pacientes
+// ✅ Pacientes
 router.get("/pacientes", verifyToken, asyncHandler(getPacientes));
 router.get("/pacientes/:id", verifyToken, asyncHandler(getPacientesById));
-router.post("/pacientes", verifyToken, asyncHandler(createPacientes));
-router.put("/pacientes/:id", verifyToken, asyncHandler(updatePacientes));
-router.delete("/pacientes/:id", verifyToken, asyncHandler(deletePacientes));
+router.post("/pacientes", verifyToken, authorizeRole("Doctor"), asyncHandler(createPacientes)); // Solo los doctores pueden agregar pacientes
+router.put("/pacientes/:id", verifyToken, authorizeRole("Doctor"), asyncHandler(updatePacientes));
+router.delete("/pacientes/:id", verifyToken, authorizeRole("Admin"), asyncHandler(deletePacientes)); // Solo Admins pueden eliminar pacientes
 
-// 🔹 Tareas
+// ✅ Tareas
 router.get("/tareas", verifyToken, asyncHandler(getTareas));
 router.get("/tareas/:id", verifyToken, asyncHandler(getTareasById));
 router.post("/tareas", verifyToken, asyncHandler(createTareas));
