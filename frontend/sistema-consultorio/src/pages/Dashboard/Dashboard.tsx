@@ -21,7 +21,9 @@ import axios from "axios";
 import React from 'react';
 import { Cita } from "../../types/types";
 
-
+// ✅ URL del backend obtenida desde .env (asegurando un fallback seguro)
+const API_URL = import.meta.env.VITE_API_URL || "https://consultorio5.onrender.com";
+console.log("API_URL cargada:", API_URL);
 
 // Definir un ícono personalizado para farmacias
 const pharmacyIcon = new L.Icon({
@@ -66,17 +68,18 @@ const Dashboard = () => {
     { lat: 25.1914, lng: -99.8261, name: "Farmacia del Ahorro" },
   ];
 
-  // Obtener citas pendientes desde la API
+  // 🔹 Obtener citas pendientes desde la API
   useEffect(() => {
     const fetchCitas = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/api/citas");
+        console.log("🔹 Enviando solicitud a:", `${API_URL}/api/citas`);
+        const response = await axios.get(`${API_URL}/api/citas`);
         const fechas = (response.data as Cita[])
           .filter((cita) => cita.estado === "pendiente")
           .map((cita) => new Date(cita.fecha));
         setCitaFechas(fechas);
       } catch (error) {
-        console.error("Error al obtener citas pendientes:", error);
+        console.error("❌ Error al obtener citas pendientes:", error);
       }
     };
 
