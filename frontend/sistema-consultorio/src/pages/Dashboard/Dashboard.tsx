@@ -67,13 +67,14 @@ const Dashboard = () => {
     { lat: 25.1859, lng: -99.8304, name: "Farmacia Similares" },
     { lat: 25.1914, lng: -99.8261, name: "Farmacia del Ahorro" },
   ];
-  
-  useEffect(() => {
-    const token = localStorage.getItem("token");
+
+useEffect(() => {
+  const token = localStorage.getItem("token");
+  console.log("🔑 Token encontrado en localStorage:", token);
   
     if (!token) {
       console.warn("🔒 Usuario no autenticado, redirigiendo al login...");
-      navigate("/login");
+      window.location.href = "/login"; // Redirección forzada
     }
   }, [navigate]);
   

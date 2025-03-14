@@ -40,11 +40,12 @@ const Login = () => {
 
     // 🔒 Evitar retroceso a la página anterior después de iniciar sesión
     useEffect(() => {
-      window.history.pushState(null, "", window.location.href);
-      window.onpopstate = () => {
-        window.history.pushState(null, "", window.location.href);
-      };
+      if (localStorage.getItem("token")) {
+        console.log("🔄 Redirigiendo automáticamente al Dashboard...");
+        window.location.href = "/dashboard"; // Redirección forzada
+      }
     }, []);
+    
 
     const handleLogin = async () => {
       if (!identifier || !password || !role) {
