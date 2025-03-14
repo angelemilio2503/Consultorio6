@@ -68,16 +68,6 @@ const Dashboard = () => {
     { lat: 25.1914, lng: -99.8261, name: "Farmacia del Ahorro" },
   ];
 
-useEffect(() => {
-  const token = localStorage.getItem("token");
-  console.log("🔑 Token encontrado en localStorage:", token);
-  
-    if (!token) {
-      console.warn("🔒 Usuario no autenticado, redirigiendo al login...");
-      window.location.href = "/login"; // Redirección forzada
-    }
-  }, [navigate]);
-  
   // 🔹 Obtener citas pendientes desde la API
   useEffect(() => {
     const fetchCitas = async () => {

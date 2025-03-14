@@ -42,25 +42,17 @@ app.use(
 
 // ✅ Configuración de CORS con múltiples orígenes permitidos
 const allowedOrigins = [
-  process.env.FRONTEND_URL, // ✅ Se usa la variable de entorno en Render
-  "http://localhost:5173"  // Permitir para desarrollo local
+  "https://consultorio6-9bn5-5dqiwlto9-kato-citys-projects.vercel.app", // URL de Vercel
+  "http://localhost:5173", // Para desarrollo local
 ];
 
 app.use(
   cors({
-    origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        console.error("🚫 Bloqueado por CORS:", origin);
-        callback(new Error("🚫 No autorizado por CORS"));
-      }
-    },
+    origin: allowedOrigins,
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     credentials: true,
   })
 );
-
 
 // 🚀 Habilitar el parsing de JSON
 app.use(express.json());
