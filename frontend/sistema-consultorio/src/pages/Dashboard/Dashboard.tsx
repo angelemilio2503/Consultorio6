@@ -50,6 +50,15 @@ const Dashboard = () => {
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [citaFechas, setCitaFechas] = useState<Date[]>([]);
 
+  // ✅ Verificar si el usuario está autenticado
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("⚠️ Debes iniciar sesión para acceder al dashboard");
+      navigate("/login");
+    }
+  }, [navigate]);
+
     // Función para cerrar sesión
     const handleLogout = () => {
       localStorage.removeItem("token"); // Eliminar el token de autenticación
@@ -77,6 +86,30 @@ const Dashboard = () => {
         const fechas = (response.data as Cita[])
           .filter((cita) => cita.estado === "pendiente")
           .map((cita) => new Date(cita.fecha));
+        setCitaFechas(fechas);
+      } catch (error) {
+        console.error("❌ Error al obtener citas pendientes:", error);
+      }
+    };
+
+    fetchCitas();
+  }, []);
+
+  // ✅ Obtener citas desde la API de Render
+  useEffect(() => {
+    const fetchCitas = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      try {
+        const response = await axios.get(`${API_URL}/api/citas`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        const fechas = (response.data as Cita[])
+          .filter((cita) => cita.estado === "pendiente")
+          .map((cita) => new Date(cita.fecha));
+
         setCitaFechas(fechas);
       } catch (error) {
         console.error("❌ Error al obtener citas pendientes:", error);
