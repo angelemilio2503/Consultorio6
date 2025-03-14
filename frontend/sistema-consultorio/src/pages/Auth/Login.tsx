@@ -83,9 +83,12 @@ const handleLogin = async () => {
 
     alert(`✅ Inicio de sesión exitoso, bienvenido ${usuario.nombre}`);
     
-    // ✅ Verifica que realmente se esté ejecutando la redirección
-    console.log("🔄 Redirigiendo al Dashboard...");
-    navigate("/dashboard");
+// ✅ Redirección correcta después del login
+localStorage.setItem("token", token);
+localStorage.setItem("auth", "true");
+console.log("✅ Redirigiendo al Dashboard...");
+setTimeout(() => navigate("/dashboard"), 500); // ✅ Asegurar que el almacenamiento se complete
+
 
   } catch (error: unknown) {
     console.error("❌ Error en login:", error);
