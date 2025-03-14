@@ -46,46 +46,60 @@ const Login = () => {
       };
     }, []);
 
-  const handleLogin = async () => {
-    if (!identifier || !password || !role) {
-      setError("Por favor, completa todos los campos");
-      return;
-    }
-
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const isEmail = /\S+@\S+\.\S+/.test(identifier);
-      const loginData = isEmail
-        ? { email: identifier, contrasena: password, rol: role }
-        : { usuario: identifier, contrasena: password, rol: role };
-        
+    const handleLogin = async () => {
+      if (!identifier || !password || !role) {
+        setError("Por favor, completa todos los campos");
+        return;
+      }
+    
+      setIsLoading(true);
+      setError(null);
+    
+      try {
+        const isEmail = /\S+@\S+\.\S+/.test(identifier);
+        const loginData = isEmail
+          ? { email: identifier, contrasena: password, rol: role }
+          : { usuario: identifier, contrasena: password, rol: role };
+          
         const API_URL = import.meta.env.VITE_API_URL || "https://consultorio5.onrender.com"; 
-        console.log("API_URL:", API_URL);  // ✅ Esto te dirá si la variable está bien cargada
-        
+        console.log("📩 Enviando solicitud a:", `${API_URL}/auth/login`);
+        console.log("📌 Datos enviados:", loginData);
+    
         const response = await axios.post(`${API_URL}/auth/login`, loginData, {
           headers: { "Content-Type": "application/json" },
         });
-               
+    
+        console.log("✅ Respuesta recibida:", response.data);
+    
+        const { token, usuario } = response.data;
+    
+        if (!token) {
+          throw new Error("Token no recibido en la respuesta del servidor.");
+        }
+    
+        // Guardar datos en localStorage
+        localStorage.setItem("token", token);
+        localStorage.setItem("user", JSON.stringify(usuario));
+    
+        alert(`✅ Inicio de sesión exitoso, bienvenido ${usuario.nombre}`);
         
-      const { token, usuario } = response.data;
-
-      localStorage.setItem("token", token);
-      localStorage.setItem("user", JSON.stringify(usuario));
-
-      alert(`Inicio de sesión exitoso, bienvenido ${usuario.nombre}`);
-      navigate("/dashboard");
-    } catch (error: unknown) {
-      if (axios.isAxiosError(error)) {
-        setError(error.response?.data?.mensaje || "Usuario, contraseña o rol incorrectos");
-      } else {
-        setError("Error desconocido al iniciar sesión.");
+        // ✅ Verifica que realmente se esté ejecutando la redirección
+        console.log("🔄 Redirigiendo al Dashboard...");
+        navigate("/dashboard");
+    
+      } catch (error: unknown) {
+        console.error("❌ Error en login:", error);
+    
+        if (axios.isAxiosError(error)) {
+          setError(error.response?.data?.mensaje || "❌ Usuario, contraseña o rol incorrectos");
+        } else {
+          setError("⚠️ Error desconocido al iniciar sesión.");
+        }
+      } finally {
+        setIsLoading(false);
       }
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    };
+    
 
   return (
     <motion.div

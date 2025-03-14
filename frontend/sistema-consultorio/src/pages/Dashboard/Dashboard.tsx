@@ -67,7 +67,15 @@ const Dashboard = () => {
     { lat: 25.1859, lng: -99.8304, name: "Farmacia Similares" },
     { lat: 25.1914, lng: -99.8261, name: "Farmacia del Ahorro" },
   ];
-
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+  
+    if (!token) {
+      console.warn("🔒 Usuario no autenticado, redirigiendo al login...");
+      navigate("/login");
+    }
+  }, [navigate]);
+  
   // 🔹 Obtener citas pendientes desde la API
   useEffect(() => {
     const fetchCitas = async () => {
