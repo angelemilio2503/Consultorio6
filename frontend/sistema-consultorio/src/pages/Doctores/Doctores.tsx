@@ -104,7 +104,7 @@ const Doctores = () => {
       }
 
       try {
-        const response = await axios.get(`${API_URL}/doctores/`, {
+        const response = await axios.get(`${API_URL}/doctores`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setDoctores(response.data);
@@ -128,7 +128,7 @@ const Doctores = () => {
 
     try {
       const token = localStorage.getItem("token");
-      await axios.delete(`${API_URL}/doctores/${id}`, {
+      await axios.delete(`${API_URL}/doctores${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       alert("Doctor eliminado exitosamente.");

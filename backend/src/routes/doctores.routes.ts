@@ -111,6 +111,15 @@ router.put(
   })
 );
 
+router.get("/", async (req, res) => {
+  try {
+    const result = await pool.query("SELECT * FROM doctores");
+    res.json(result.rows);
+  } catch (error) {
+    res.status(500).json({ message: "Error al obtener doctores", error });
+  }
+});
+
 // ✅ Eliminar un doctor (solo Admin)
 router.delete(
   "/:id",
