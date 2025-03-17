@@ -31,6 +31,8 @@ const app = express();
 // 🔒 Configuración de seguridad con Helmet
 app.use(helmet());
 
+app.use("/api/pacientes", pacientesRoutes);
+
 // 🔒 Configuración de rate limit para evitar ataques de fuerza bruta
 app.use(
   rateLimit({
