@@ -25,8 +25,7 @@ router.post(
   asyncHandler(registerPaciente)
 );
 
-router.get("/desencriptados", verifyToken, asyncHandler(getPacientes));
-
+router.get("/desencriptados", verifyToken, listarPacientesDesencriptados);
 
 // ✅ Actualizar un paciente (solo los doctores pueden hacerlo)
 router.put(

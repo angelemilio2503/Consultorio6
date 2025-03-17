@@ -7,6 +7,7 @@ import citasRoutes from "./routes/citas";
 import pacientesRoutes from "./routes/pacientes.routes";
 import authRoutes from "./routes/auth.routes";
 
+
 // Cargar variables de entorno
 dotenv.config();
 

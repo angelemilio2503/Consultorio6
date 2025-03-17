@@ -69,7 +69,7 @@ const Pacientes = () => {
         const API_URL = import.meta.env.VITE_API_URL || "https://consultorio5.onrender.com/api";
         const response = await axios.get(`${API_URL}/pacientes/desencriptados`, {
           headers: { Authorization: `Bearer ${token}` },
-        });        
+        });    
         setPacientes(response.data);
       } catch (err) {
         console.error("Error al obtener la lista de pacientes:", err);
