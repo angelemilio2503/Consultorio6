@@ -20,11 +20,10 @@ import {
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import DeleteIcon from "@mui/icons-material/Delete";
-import AddIcon from "@mui/icons-material/Add"; // Ícono para añadir pacientes
+import AddIcon from "@mui/icons-material/Add";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import React from 'react';
-
+import React from "react";
 
 // Animaciones
 const pageTransition = {
@@ -38,6 +37,7 @@ const buttonAnimation = {
   whileTap: { scale: 0.95 },
 };
 
+// Interfaz del Paciente
 interface Paciente {
   id: number;
   nombre: string;
@@ -66,10 +66,13 @@ const Pacientes = () => {
       }
 
       try {
-const API_URL = import.meta.env.VITE_API_URL || "https://consultorio5.onrender.com/api";
-const response = await axios.get(`${API_URL}/pacientes/desencriptados`);
+        const API_URL = import.meta.env.VITE_API_URL || "https://consultorio5.onrender.com/api";
+        const response = await axios.get(`${API_URL}/pacientes/desencriptados`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         setPacientes(response.data);
-      } catch {
+      } catch (err) {
+        console.error("Error al obtener la lista de pacientes:", err);
         setError("Error al obtener la lista de pacientes.");
       } finally {
         setLoading(false);
@@ -86,13 +89,16 @@ const response = await axios.get(`${API_URL}/pacientes/desencriptados`);
 
     try {
       const token = localStorage.getItem("token");
-      await axios.delete(`http://localhost:3000/pacientes/${id}`, {
+      const API_URL = import.meta.env.VITE_API_URL || "https://consultorio5.onrender.com/api";
+
+      await axios.delete(`${API_URL}/pacientes/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
       alert("Paciente eliminado exitosamente.");
-      setPacientes(pacientes.filter((paciente) => paciente.id !== id));
-    } catch {
+      setPacientes((prevPacientes) => prevPacientes.filter((paciente) => paciente.id !== id));
+    } catch (err) {
+      console.error("Error al eliminar el paciente:", err);
       alert("Error al eliminar el paciente.");
     }
   };
@@ -103,48 +109,25 @@ const response = await axios.get(`${API_URL}/pacientes/desencriptados`);
   };
 
   return (
-    <motion.div
-      variants={pageTransition}
-      initial="initial"
-      animate="animate"
-      exit="exit"
-    >
-      <Box
-        sx={{
-          height: "100vh",
-          width: "100vw",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
-        }}
-      >
+    <motion.div variants={pageTransition} initial="initial" animate="animate" exit="exit">
+      <Box sx={{ paddingBottom: 5 }}>
         {/* Barra de navegación */}
         <AppBar position="static" sx={{ backgroundColor: "rgb(0, 111, 191)" }}>
           <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
-            <Typography
-              variant="h6"
-              sx={{ color: "#FFFFFF", fontWeight: "bold" }}
-            >
+            <Typography variant="h6" sx={{ color: "#FFFFFF", fontWeight: "bold" }}>
               Gestión de Pacientes
             </Typography>
 
-            {/* Barra de navegación */}
             <Box sx={{ display: "flex", gap: 2 }}>
               <Button sx={{ color: "#FFFFFF" }} onClick={() => navigate("/dashboard")}>
                 Dashboard Principal
               </Button>
-              <Button
-                sx={{ color: "#FFFFFF" }}
-                onClick={() => navigate("/doctores")}
-              >
+              <Button sx={{ color: "#FFFFFF" }} onClick={() => navigate("/doctores")}>
                 Doctores
               </Button>
-              <Button
-  sx={{ color: "#FFFFFF" }}
-  onClick={() => navigate("/citas")} // Redirige a la página de citas
->
-  Gestión de Citas
-</Button>
+              <Button sx={{ color: "#FFFFFF" }} onClick={() => navigate("/citas")}>
+                Gestión de Citas
+              </Button>
               <Button sx={{ color: "#FFFFFF" }}>Departamentos</Button>
             </Box>
 
@@ -163,21 +146,12 @@ const response = await axios.get(`${API_URL}/pacientes/desencriptados`);
               onMouseLeave={() => setIsSearchVisible(false)}
             >
               <IconButton>
-                <SearchIcon
-                  sx={{ color: isSearchVisible ? "#0090FF" : "white" }}
-                />
+                <SearchIcon sx={{ color: isSearchVisible ? "#0090FF" : "white" }} />
               </IconButton>
               {isSearchVisible && (
                 <InputBase
                   placeholder="Buscar..."
-                  sx={{
-                    ml: 1,
-                    flex: 1,
-                    color: "black",
-                    "& input": {
-                      padding: "5px",
-                    },
-                  }}
+                  sx={{ ml: 1, flex: 1, color: "black", "& input": { padding: "5px" } }}
                 />
               )}
             </Box>
@@ -193,12 +167,7 @@ const response = await axios.get(`${API_URL}/pacientes/desencriptados`);
 
             {/* Botón para añadir paciente */}
             <motion.div variants={buttonAnimation} whileHover="whileHover" whileTap="whileTap">
-              <Button
-                variant="contained"
-                color="success"
-                startIcon={<AddIcon />}
-                onClick={handleAddPaciente}
-              >
+              <Button variant="contained" color="success" startIcon={<AddIcon />} onClick={handleAddPaciente}>
                 Añadir Paciente
               </Button>
             </motion.div>
@@ -209,58 +178,48 @@ const response = await axios.get(`${API_URL}/pacientes/desencriptados`);
           ) : error ? (
             <Alert severity="error">{error}</Alert>
           ) : (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1, transition: { duration: 1 } }}>
-              <TableContainer component={Paper} elevation={3}>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>ID</TableCell>
-                      <TableCell>Nombre</TableCell>
-                      <TableCell>Edad</TableCell>
-                      <TableCell>Padecimientos</TableCell>
-                      <TableCell>Tipo de Sangre</TableCell>
-                      <TableCell>Discapacidades</TableCell>
-                      <TableCell>Diagnóstico</TableCell>
-                      <TableCell>Acciones</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {pacientes.length > 0 ? (
-                      pacientes.map((paciente) => (
-                        <motion.tr
-                          key={paciente.id}
-                          whileHover={{ scale: 1.02 }}
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0, transition: { duration: 0.4 } }}
-                        >
-                          <TableCell>{paciente.id}</TableCell>
-                          <TableCell>{paciente.nombre}</TableCell>
-                          <TableCell>{paciente.edad}</TableCell>
-                          <TableCell>{paciente.padecimientos}</TableCell>
-                          <TableCell>{paciente.tipo_sangre}</TableCell>
-                          <TableCell>{paciente.discapacidades}</TableCell>
-                          <TableCell>{paciente.diagnostico}</TableCell>
-                          <TableCell>
-                            <IconButton
-                              color="error"
-                              onClick={() => handleDelete(paciente.id)}
-                            >
-                              <DeleteIcon />
-                            </IconButton>
-                          </TableCell>
-                        </motion.tr>
-                      ))
-                    ) : (
-                      <TableRow>
-                        <TableCell colSpan={8} style={{ textAlign: "center" }}>
-                          No hay pacientes registrados en la base de datos.
+            <TableContainer component={Paper} elevation={3}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>ID</TableCell>
+                    <TableCell>Nombre</TableCell>
+                    <TableCell>Edad</TableCell>
+                    <TableCell>Padecimientos</TableCell>
+                    <TableCell>Tipo de Sangre</TableCell>
+                    <TableCell>Discapacidades</TableCell>
+                    <TableCell>Diagnóstico</TableCell>
+                    <TableCell>Acciones</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {pacientes.length > 0 ? (
+                    pacientes.map((paciente) => (
+                      <TableRow key={paciente.id}>
+                        <TableCell>{paciente.id}</TableCell>
+                        <TableCell>{paciente.nombre}</TableCell>
+                        <TableCell>{paciente.edad}</TableCell>
+                        <TableCell>{paciente.padecimientos}</TableCell>
+                        <TableCell>{paciente.tipo_sangre}</TableCell>
+                        <TableCell>{paciente.discapacidades}</TableCell>
+                        <TableCell>{paciente.diagnostico}</TableCell>
+                        <TableCell>
+                          <IconButton color="error" onClick={() => handleDelete(paciente.id)}>
+                            <DeleteIcon />
+                          </IconButton>
                         </TableCell>
                       </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </motion.div>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={8} style={{ textAlign: "center" }}>
+                        No hay pacientes registrados en la base de datos.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
           )}
         </Box>
       </Box>
