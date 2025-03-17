@@ -23,34 +23,17 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { jwtDecode } from "jwt-decode";
-import React from "react";
+import React from 'react';
 
-// ✅ Declaración de tipos para import.meta.env
-interface ImportMetaEnv {
-  VITE_API_URL: string;
-}
 
-interface Doctor {
-  id: number;
-  nombre: string;
-  cedula: string;
-  especializacion: string;
-  area: string;
-  telefono: string;
-}
-
-interface DecodedToken {
-  rol: string;
-}
-
-// 🔹 Animaciones generales
+// Animaciones generales
 const pageTransition = {
   initial: { opacity: 0, y: 50 },
   animate: { opacity: 1, y: 0, transition: { duration: 0.8 } },
   exit: { opacity: 0, y: -50, transition: { duration: 0.5 } },
 };
 
-// 🔹 Animaciones para acciones de botones
+// Animaciones para acciones de botones
 const buttonAnimation = {
   whileHover: { scale: 1.1 },
   whileTap: { scale: 0.95 },
@@ -77,9 +60,6 @@ const Doctores = () => {
   const [userRole, setUserRole] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  // ✅ Cargar la URL de la API correctamente
-  const API_URL = (import.meta.env as ImportMetaEnv).VITE_API_URL || "https://consultorio5.onrender.com";
-
   // ✅ Obtener el rol del usuario desde el token
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -97,6 +77,7 @@ const Doctores = () => {
   useEffect(() => {
     const fetchDoctores = async () => {
       const token = localStorage.getItem("token");
+
       if (!token) {
         setError("No tienes acceso. Inicia sesión.");
         setLoading(false);
@@ -104,45 +85,47 @@ const Doctores = () => {
       }
 
       try {
-        const response = await axios.get(`${API_URL}/doctores`, {
+        const response = await axios.get("http://localhost:3000/doctores/doctores_users", {
           headers: { Authorization: `Bearer ${token}` },
         });
         setDoctores(response.data);
-      } catch (err: unknown) {
-        if (err instanceof Error) {
-          setError("Error al obtener la lista de doctores.");
-          console.error("❌ Error al obtener doctores:", err.message);
-        }
+      } catch {
+        setError("Error al obtener la lista de doctores.");
       } finally {
         setLoading(false);
       }
     };
+
     fetchDoctores();
-  }, [API_URL]);
+  }, []);
 
   // ✅ Eliminar doctor (solo Admin)
   const handleDelete = async (id: number) => {
     if (userRole !== "Admin") return;
+
     const confirmDelete = window.confirm("¿Estás seguro de que deseas eliminar este doctor?");
     if (!confirmDelete) return;
 
     try {
       const token = localStorage.getItem("token");
-      await axios.delete(`${API_URL}/doctores${id}`, {
+      await axios.delete(`http://localhost:3000/doctores/doctores_users/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+
       alert("Doctor eliminado exitosamente.");
-      setDoctores((prevDoctores) => prevDoctores.filter((doctor) => doctor.id !== id));
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        alert("Error al eliminar el doctor.");
-        console.error("❌ Error al eliminar doctor:", err.message);
-      }
+      setDoctores(doctores.filter((doctor) => doctor.id !== id));
+    } catch {
+      alert("Error al eliminar el doctor.");
     }
   };
 
   return (
-    <motion.div variants={pageTransition} initial="initial" animate="animate" exit="exit">
+    <motion.div
+      variants={pageTransition}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+    >
       <Box
         sx={{
           height: "100vh",
@@ -155,6 +138,7 @@ const Doctores = () => {
         {/* ✅ Barra de navegación */}
         <AppBar position="static" sx={{ backgroundColor: "rgb(0, 111, 191)" }}>
           <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
+            {/* Título */}
             <Typography variant="h6" sx={{ color: "#FFFFFF", fontWeight: "bold" }}>
               Gestión de Doctores
             </Typography>
@@ -173,7 +157,7 @@ const Doctores = () => {
               <Button sx={{ color: "#FFFFFF" }}>Departamentos</Button>
             </Box>
 
-            {/* Barra de búsqueda */}
+            {/* Barra de búsqueda interactiva */}
             <Box
               sx={{
                 display: "flex",
@@ -212,9 +196,14 @@ const Doctores = () => {
           <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
             <Typography variant="h4">Lista de Doctores</Typography>
 
+            {/* Botón Agregar Doctor solo visible para Admin */}
             {userRole === "Admin" && (
               <motion.div variants={buttonAnimation} whileHover="whileHover" whileTap="whileTap">
-                <Button variant="contained" color="primary" onClick={() => navigate("/agregar-doctor")}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={() => navigate("/agregar-doctor")}
+                >
                   Agregar Doctor
                 </Button>
               </motion.div>
@@ -240,23 +229,38 @@ const Doctores = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {doctores.map((doctor) => (
-                    <TableRow key={doctor.id}>
-                      <TableCell>{doctor.id}</TableCell>
-                      <TableCell>{doctor.nombre}</TableCell>
-                      <TableCell>{doctor.cedula}</TableCell>
-                      <TableCell>{doctor.especializacion}</TableCell>
-                      <TableCell>{doctor.area}</TableCell>
-                      <TableCell>{doctor.telefono}</TableCell>
-                      {userRole === "Admin" && (
-                        <TableCell>
-                          <IconButton color="error" onClick={() => handleDelete(doctor.id)}>
-                            <DeleteIcon />
-                          </IconButton>
-                        </TableCell>
-                      )}
+                  {doctores.length > 0 ? (
+                    doctores.map((doctor) => (
+                      <motion.tr
+                        key={doctor.id}
+                        initial={{ opacity: 0, x: -50 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.5 }}
+                      >
+                        <TableCell>{doctor.id}</TableCell>
+                        <TableCell>{doctor.nombre}</TableCell>
+                        <TableCell>{doctor.cedula}</TableCell>
+                        <TableCell>{doctor.especializacion}</TableCell>
+                        <TableCell>{doctor.area}</TableCell>
+                        <TableCell>{doctor.telefono}</TableCell>
+                        {userRole === "Admin" && (
+                          <TableCell>
+                            <motion.div whileHover={{ scale: 1.2 }} whileTap={{ scale: 0.9 }}>
+                              <IconButton color="error" onClick={() => handleDelete(doctor.id)}>
+                                <DeleteIcon />
+                              </IconButton>
+                            </motion.div>
+                          </TableCell>
+                        )}
+                      </motion.tr>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={7} style={{ textAlign: "center" }}>
+                        No hay doctores registrados en la base de datos.
+                      </TableCell>
                     </TableRow>
-                  ))}
+                  )}
                 </TableBody>
               </Table>
             </TableContainer>
