@@ -59,7 +59,9 @@ const Citas = () => {
       }
 
       try {
-        const response = await axios.get("http://localhost:3000/api/citas", {
+        const API_URL = import.meta.env.VITE_API_URL || "https://consultorio5.onrender.com/api";
+
+        const response = await axios.get(`${API_URL}/citas`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setCitas(response.data);
