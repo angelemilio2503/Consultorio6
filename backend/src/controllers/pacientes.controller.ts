@@ -7,10 +7,10 @@ const router = Router();
 // ✅ Registrar un nuevo paciente
 export const registerPaciente = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { nombre, edad, padecimientos, tipo_sangre, discapacidades, diagnostico } = req.body;
+const { nombre, edad, padecimientos, tipo_sangre, discapacidades, diagnostico } = req.body;
 
     // Validar que todos los campos estén completos
-    if (!nombre || !edad || !padecimientos || !tipo_sangre || !discapacacidades || !diagnostico) {
+    if (!nombre || !edad || !padecimientos || !tipo_sangre || !discapacidades || !diagnostico) {
       res.status(400).json({ message: "Todos los campos son obligatorios." });
       return;
     }
@@ -59,6 +59,17 @@ export const getPacientes = async (req: Request, res: Response): Promise<void> =
   } catch (error) {
     console.error("❌ Error al obtener pacientes:", error);
     res.status(500).json({ message: "Error interno al obtener pacientes." });
+  }
+};
+
+// ✅ Lista de pacientes con datos encriptados (para pruebas en Thunder Client)
+export const listarPacientes = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const result = await pool.query("SELECT * FROM pacientes");
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.error("Error al listar pacientes:", error);
+    res.status(500).json({ message: "Error al listar pacientes." });
   }
 };
 
