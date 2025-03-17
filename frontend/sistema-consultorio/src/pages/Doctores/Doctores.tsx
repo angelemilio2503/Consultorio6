@@ -85,7 +85,8 @@ const Doctores = () => {
       }
 
       try {
-        const response = await axios.get("http://localhost:3000/doctores/doctores_users", {
+        const API_URL = import.meta.env.VITE_API_URL || "https://consultorio5.onrender.com";
+        const response = await axios.get(`${API_URL}/doctores`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setDoctores(response.data);

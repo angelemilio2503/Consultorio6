@@ -5,26 +5,26 @@ import { verifyToken, authorizeRole } from "../middlewares/auth.middleware";
 
 const router = Router();
 
-// ✅ Ruta para obtener todos los doctores desde la tabla doctores_users (Disponible para todos los roles autenticados)
+// ✅ Obtener todos los doctores (Disponible para todos los roles autenticados)
 router.get(
-  "/doctores_users",
+  "/",
   verifyToken,
   asyncHandler(async (req: Request, res: Response): Promise<void> => {
     try {
-      const result = await pool.query("SELECT * FROM doctores_users");
+      const result = await pool.query("SELECT * FROM doctores ORDER BY id ASC");
       res.status(200).json(result.rows);
     } catch (error) {
-      console.error("Error al obtener los doctores:", error);
+      console.error("❌ Error al obtener los doctores:", error);
       res.status(500).json({ mensaje: "Error interno del servidor" });
     }
   })
 );
 
-// ✅ Ruta para registrar un nuevo doctor directamente en doctores_users (solo Admin)
+// ✅ Registrar un nuevo doctor (solo Admin)
 router.post(
   "/registrar",
   verifyToken,
-  authorizeRole("Admin"), // Solo permite a usuarios con rol Admin
+  authorizeRole("Admin"),
   asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { nombre, cedula, especializacion, area, telefono } = req.body;
 
@@ -34,44 +34,98 @@ router.post(
     }
 
     try {
-      const existeDoctor = await pool.query("SELECT * FROM doctores_users WHERE cedula = $1", [cedula]);
+      const existeDoctor = await pool.query("SELECT * FROM doctores WHERE cedula = $1", [cedula]);
       if (existeDoctor.rows.length > 0) {
         res.status(400).json({ mensaje: "Un doctor con esta cédula ya está registrado" });
         return;
       }
 
       await pool.query(
-        "INSERT INTO doctores_users (nombre, cedula, especializacion, area, telefono) VALUES ($1, $2, $3, $4, $5)",
+        "INSERT INTO doctores (nombre, cedula, especializacion, area, telefono) VALUES ($1, $2, $3, $4, $5)",
         [nombre, cedula, especializacion, area, telefono]
       );
 
-      res.status(201).json({ mensaje: "Doctor agregado exitosamente" });
+      res.status(201).json({ mensaje: "✅ Doctor agregado exitosamente" });
     } catch (error) {
-      console.error("Error al registrar doctor:", error);
+      console.error("❌ Error al registrar doctor:", error);
       res.status(500).json({ mensaje: "Error interno del servidor" });
     }
   })
 );
 
-// ✅ Ruta para eliminar un doctor por ID (solo Admin)
-router.delete(
-  "/doctores_users/:id",
+// ✅ Obtener un doctor por ID
+router.get(
+  "/:id",
   verifyToken,
-  authorizeRole("Admin"), // Solo permite a usuarios con rol Admin
   asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
+    try {
+      const doctor = await pool.query("SELECT * FROM doctores WHERE id = $1", [id]);
+      if (doctor.rows.length === 0) {
+        res.status(404).json({ mensaje: "Doctor no encontrado" });
+        return;
+      }
+      res.status(200).json(doctor.rows[0]);
+    } catch (error) {
+      console.error("❌ Error al obtener el doctor:", error);
+      res.status(500).json({ mensaje: "Error interno del servidor" });
+    }
+  })
+);
+
+// ✅ Actualizar información de un doctor (solo Admin)
+router.put(
+  "/:id",
+  verifyToken,
+  authorizeRole("Admin"),
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const { id } = req.params;
+    const { nombre, cedula, especializacion, area, telefono } = req.body;
+
+    if (!nombre || !cedula || !especializacion || !area || !telefono) {
+      res.status(400).json({ mensaje: "Todos los campos son obligatorios" });
+      return;
+    }
 
     try {
-      const doctorExistente = await pool.query("SELECT * FROM doctores_users WHERE id = $1", [id]);
+      const doctorExistente = await pool.query("SELECT * FROM doctores WHERE id = $1", [id]);
       if (doctorExistente.rows.length === 0) {
         res.status(404).json({ mensaje: "Doctor no encontrado" });
         return;
       }
 
-      await pool.query("DELETE FROM doctores_users WHERE id = $1", [id]);
-      res.status(200).json({ mensaje: "Doctor eliminado exitosamente" });
+      await pool.query(
+        "UPDATE doctores SET nombre = $1, cedula = $2, especializacion = $3, area = $4, telefono = $5 WHERE id = $6",
+        [nombre, cedula, especializacion, area, telefono, id]
+      );
+
+      res.status(200).json({ mensaje: "✅ Doctor actualizado exitosamente" });
     } catch (error) {
-      console.error("Error al eliminar doctor:", error);
+      console.error("❌ Error al actualizar doctor:", error);
+      res.status(500).json({ mensaje: "Error interno del servidor" });
+    }
+  })
+);
+
+// ✅ Eliminar un doctor (solo Admin)
+router.delete(
+  "/:id",
+  verifyToken,
+  authorizeRole("Admin"),
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const { id } = req.params;
+
+    try {
+      const doctorExistente = await pool.query("SELECT * FROM doctores WHERE id = $1", [id]);
+      if (doctorExistente.rows.length === 0) {
+        res.status(404).json({ mensaje: "Doctor no encontrado" });
+        return;
+      }
+
+      await pool.query("DELETE FROM doctores WHERE id = $1", [id]);
+      res.status(200).json({ mensaje: "✅ Doctor eliminado exitosamente" });
+    } catch (error) {
+      console.error("❌ Error al eliminar doctor:", error);
       res.status(500).json({ mensaje: "Error interno del servidor" });
     }
   })
