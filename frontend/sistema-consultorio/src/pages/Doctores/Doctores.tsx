@@ -73,32 +73,34 @@ const Doctores = () => {
     }
   }, []);
 
+const API_URL = import.meta.env.VITE_API_URL || "https://consultorio5.onrender.com";
+
   // ✅ Obtener la lista de doctores
-  useEffect(() => {
-    const fetchDoctores = async () => {
-      const token = localStorage.getItem("token");
+useEffect(() => {
+  const fetchDoctores = async () => {
+    const token = localStorage.getItem("token");
 
-      if (!token) {
-        setError("No tienes acceso. Inicia sesión.");
-        setLoading(false);
-        return;
-      }
+    if (!token) {
+      setError("No tienes acceso. Inicia sesión.");
+      setLoading(false);
+      return;
+    }
 
-      try {
-        const API_URL = import.meta.env.VITE_API_URL || "https://consultorio5.onrender.com";
-        const response = await axios.get(`${API_URL}/doctores`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setDoctores(response.data);
-      } catch {
-        setError("Error al obtener la lista de doctores.");
-      } finally {
-        setLoading(false);
-      }
-    };
+    try {
+      const response = await axios.get(`${API_URL}/doctores/`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setDoctores(response.data);
+    } catch {
+      setError("Error al obtener la lista de doctores.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    fetchDoctores();
-  }, []);
+  fetchDoctores();
+}, []);
+
 
   // ✅ Eliminar doctor (solo Admin)
   const handleDelete = async (id: number) => {

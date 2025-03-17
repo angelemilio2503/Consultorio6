@@ -6,10 +6,7 @@ import { verifyToken, authorizeRole } from "../middlewares/auth.middleware";
 const router = Router();
 
 // ✅ Obtener todos los doctores (Disponible para todos los roles autenticados)
-router.get(
-  "/",
-  verifyToken,
-  asyncHandler(async (req: Request, res: Response): Promise<void> => {
+router.get("/",verifyToken,asyncHandler(async (req: Request, res: Response): Promise<void> => {
     try {
       const result = await pool.query("SELECT * FROM doctores ORDER BY id ASC");
       res.status(200).json(result.rows);
