@@ -25,6 +25,24 @@ import { motion } from "framer-motion";
 import { jwtDecode } from "jwt-decode";
 import React from "react";
 
+// ✅ Declaración de tipos para import.meta.env
+interface ImportMetaEnv {
+  VITE_API_URL: string;
+}
+
+interface Doctor {
+  id: number;
+  nombre: string;
+  cedula: string;
+  especializacion: string;
+  area: string;
+  telefono: string;
+}
+
+interface DecodedToken {
+  rol: string;
+}
+
 // 🔹 Animaciones generales
 const pageTransition = {
   initial: { opacity: 0, y: 50 },
@@ -59,8 +77,8 @@ const Doctores = () => {
   const [userRole, setUserRole] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  // 🔹 Cargar la URL de la API desde las variables de entorno o usar la predeterminada
-  const API_URL = import.meta.env.VITE_API_URL || "https://consultorio5.onrender.com";
+  // ✅ Cargar la URL de la API correctamente
+  const API_URL = (import.meta.env as ImportMetaEnv).VITE_API_URL || "https://consultorio5.onrender.com";
 
   // ✅ Obtener el rol del usuario desde el token
   useEffect(() => {
@@ -78,9 +96,7 @@ const Doctores = () => {
   // ✅ Obtener la lista de doctores
   useEffect(() => {
     const fetchDoctores = async () => {
-      setLoading(true);
       const token = localStorage.getItem("token");
-
       if (!token) {
         setError("No tienes acceso. Inicia sesión.");
         setLoading(false);
@@ -92,21 +108,21 @@ const Doctores = () => {
           headers: { Authorization: `Bearer ${token}` },
         });
         setDoctores(response.data);
-      } catch (err: any) {
-        setError("Error al obtener la lista de doctores.");
-        console.error("❌ Error al obtener doctores:", err.response?.data || err.message);
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          setError("Error al obtener la lista de doctores.");
+          console.error("❌ Error al obtener doctores:", err.message);
+        }
       } finally {
         setLoading(false);
       }
     };
-
     fetchDoctores();
   }, [API_URL]);
 
   // ✅ Eliminar doctor (solo Admin)
   const handleDelete = async (id: number) => {
     if (userRole !== "Admin") return;
-
     const confirmDelete = window.confirm("¿Estás seguro de que deseas eliminar este doctor?");
     if (!confirmDelete) return;
 
@@ -115,12 +131,13 @@ const Doctores = () => {
       await axios.delete(`${API_URL}/doctores/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-
-      alert("✅ Doctor eliminado exitosamente.");
+      alert("Doctor eliminado exitosamente.");
       setDoctores((prevDoctores) => prevDoctores.filter((doctor) => doctor.id !== id));
-    } catch (err: any) {
-      alert("❌ Error al eliminar el doctor.");
-      console.error("❌ Error al eliminar doctor:", err.response?.data || err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        alert("Error al eliminar el doctor.");
+        console.error("❌ Error al eliminar doctor:", err.message);
+      }
     }
   };
 
