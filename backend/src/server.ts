@@ -2,7 +2,7 @@ import express, { Application, Request, Response, NextFunction } from "express";
 import * as dotenv from "dotenv";
 import cors from "cors";
 import { pool } from "./database";
-import doctorRoutes from "./routes/doctores.routes";
+import doctoresRoutes from "./routes/doctores.routes";
 import citasRoutes from "./routes/citas";
 import pacientesRoutes from "./routes/pacientes.routes";
 import authRoutes from "./routes/auth.routes";
@@ -30,7 +30,7 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 // ✅ Rutas de la API
-app.use("/api/doctores", doctorRoutes);
+app.use("/doctores", doctoresRoutes);
 app.use("/api/citas", citasRoutes);
 app.use("/api/pacientes", pacientesRoutes);
 app.use("/api/auth", authRoutes);
