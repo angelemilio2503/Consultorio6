@@ -10,14 +10,14 @@ import doctoresRoutes from "./routes/doctores.routes";
 import pacientesRoutes from "./routes/pacientes.routes";
 import citasRoutes from "./routes/citas";
 
-dotenv.config(); // Cargar variables de entorno
+dotenv.config(); // 🔹 Cargar variables de entorno
 
-// ✅ Verificación de variables de entorno esenciales
-const requiredEnvVars = ["JWT_SECRET", "ENCRYPTION_SECRET", "DB_HOST"];
+// 🔹 Verificación de variables de entorno esenciales
+const requiredEnvVars = ["JWT_SECRET", "ENCRYPTION_SECRET", "DB_HOST", "DB_USER", "DB_PASSWORD", "DB_NAME", "DB_PORT"];
 const missingEnvVars = requiredEnvVars.filter((varName) => !process.env[varName]);
 
 if (missingEnvVars.length > 0) {
-  console.error(`❌ Error: Faltan variables de entorno requeridas: ${missingEnvVars.join(", ")}`);
+  console.error(`❌ ERROR: Faltan variables de entorno requeridas: ${missingEnvVars.join(", ")}`);
   process.exit(1);
 }
 
@@ -32,18 +32,17 @@ const app = express();
 app.use(helmet());
 
 // 🔒 Configuración de rate limit para evitar ataques de fuerza bruta
-app.use(
-  rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutos
-    max: 100, // Límite de 100 solicitudes por IP
-    message: "🚫 Demasiadas solicitudes desde esta IP. Intenta de nuevo más tarde.",
-  })
-);
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 100, // Límite de 100 solicitudes por IP
+  message: "🚫 Demasiadas solicitudes desde esta IP. Intenta de nuevo más tarde.",
+});
+app.use(limiter);
 
 // ✅ Configuración de CORS con múltiples orígenes permitidos
 const allowedOrigins = [
   "https://consultorio6-9bn5-5dqiwlto9-kato-citys-projects.vercel.app", // URL de Vercel
-  "http://localhost:5173", // Para desarrollo local
+  "http://localhost:5173", // Desarrollo local
 ];
 
 app.use(
@@ -54,16 +53,18 @@ app.use(
   })
 );
 
-// 🚀 Habilitar el parsing de JSON
+// 🚀 Habilitar el parsing de JSON y URL-encoded
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // 📌 Definición de rutas
 app.use("/auth", authRoutes);
 app.use("/doctores", doctoresRoutes);
 app.use("/pacientes", pacientesRoutes);
-app.use("/api", citasRoutes);
+app.use("/api/citas", citasRoutes);
+app.use("/", indexRoutes);
 
-// ✅ Nueva ruta raíz para probar si el backend responde correctamente
+// ✅ Ruta raíz para probar si el backend responde correctamente
 app.get("/", (req: Request, res: Response) => {
   res.json({ message: "🚀 Backend funcionando correctamente en Render" });
 });
@@ -85,18 +86,19 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   res.status(500).json({ message: "Error interno del servidor" });
 });
 
-// 🔥 Iniciar servidor
-app.listen(PORT, async () => {
-  console.log(`✅ Servidor corriendo en http://localhost:${PORT}`);
-
-  // ✅ Verificar conexión con la base de datos al iniciar
+// 🔥 Iniciar servidor solo si la conexión a la base de datos es exitosa
+const startServer = async () => {
   try {
     await pool.query("SELECT NOW();");
     console.log("✅ Conectado a la base de datos PostgreSQL en Render");
+
+    app.listen(PORT, () => {
+      console.log(`✅ Servidor corriendo en http://localhost:${PORT}`);
+    });
   } catch (error) {
     console.error("❌ No se pudo conectar a la base de datos:", error);
+    process.exit(1);
   }
-}).on("error", (err) => {
-  console.error("❌ Error al iniciar el servidor:", err);
-  process.exit(1);
-});
+};
+
+startServer();
