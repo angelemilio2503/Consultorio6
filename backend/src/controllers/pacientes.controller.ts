@@ -72,7 +72,7 @@ export const listarPacientes = async (req: Request, res: Response): Promise<void
 export const listarPacientesDesencriptados = async (req: Request, res: Response): Promise<void> => {
   try {
     const result = await pool.query("SELECT * FROM pacientes");
-
+    res.json(result.rows);
     if (result.rows.length === 0) {
       res.status(404).json({ message: "No hay pacientes registrados." });
       return;
@@ -90,8 +90,8 @@ export const listarPacientesDesencriptados = async (req: Request, res: Response)
 
     res.status(200).json(pacientes);
   } catch (error) {
-    console.error("Error al listar pacientes desencriptados:", error);
-    res.status(500).json({ message: "Error al listar pacientes desencriptados." });
+    console.error("Error al obtener los pacientes:", error);
+    res.status(500).json({ mensaje: "Error interno del servidor." });
   }
 };
 
