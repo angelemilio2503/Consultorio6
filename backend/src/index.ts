@@ -109,3 +109,4 @@ app.listen(PORT, async () => {
   console.error("❌ Error al iniciar el servidor:", err);
   process.exit(1);
 });
+
