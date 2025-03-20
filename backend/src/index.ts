@@ -44,17 +44,24 @@ app.use(
 
 // ✅ Configuración de CORS con múltiples orígenes permitidos
 const allowedOrigins = [
-  "https://consultorio6-9bn5-5dqiwlto9-kato-citys-projects.vercel.app", // URL de Vercel
-  "http://localhost:5173", // Para desarrollo local
+  "https://consultorio6-9bn5-5dqiwlto9-kato-citys-projects.vercel.app",
+  "https://consultorio6-mega-kato-citys-projects.vercel.app",  // ✅ <-- AGREGA ESTE
+  "https://denuevo123.vercel.app",                             // ✅ <-- Si usarás este también
+  "http://localhost:5173"
 ];
 
-app.use(
-  cors({
-    origin: allowedOrigins,
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-    credentials: true,
-  })
-);
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("🚫 No autorizado por CORS"));
+    }
+  },
+  credentials: true,
+}));
+
 
 // 🚀 Habilitar el parsing de JSON
 app.use(express.json());
