@@ -47,7 +47,8 @@ const allowedOrigins = [
   "https://consultorio6-9bn5-5dqiwlto9-kato-citys-projects.vercel.app",
   "https://consultorio6-mega-kato-citys-projects.vercel.app",  // ✅ <-- AGREGA ESTE
   "https://denuevo123.vercel.app",                             // ✅ <-- Si usarás este también
-  "http://localhost:5173"
+  "http://localhost:5173",
+  "https://consultorio6-mfni.vercel.app"  // ✅ AGREGA ESTE NUEVO
 ];
 
 
