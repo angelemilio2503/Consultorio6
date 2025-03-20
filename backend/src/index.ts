@@ -48,7 +48,7 @@ const allowedOrigins = [
   "https://consultorio6-mega-kato-citys-projects.vercel.app",  // ✅ <-- AGREGA ESTE
   "https://denuevo123.vercel.app",                             // ✅ <-- Si usarás este también
   "http://localhost:5173",
-  "https://consultorio6-mfni.vercel.app"  // ✅ AGREGA ESTE NUEVO
+  "https://consultorio6-mfni.vercel.app" // ✅ AGREGA ESTE NUEVO
 ];
 
 
@@ -57,11 +57,13 @@ app.use(cors({
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
+      console.log("🚫 Origin NO autorizado:", origin);
       callback(new Error("🚫 No autorizado por CORS"));
     }
   },
   credentials: true,
 }));
+
 
 
 // 🚀 Habilitar el parsing de JSON
