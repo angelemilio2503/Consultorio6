@@ -5,7 +5,7 @@ import { pool } from '../database';
 const router = express.Router();
 
 // Obtener todas las citas
-router.get('/citas', async (req, res) => {
+router.get('/', async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM citas');
     res.json(result.rows);
@@ -15,7 +15,7 @@ router.get('/citas', async (req, res) => {
 });
 
 // Agregar una nueva cita
-router.post('/citas', async (req, res) => {
+router.post('/', async (req, res) => {
   const { fecha, nombre_paciente, nombre_doctor, motivo, estado } = req.body;
   try {
     const result = await pool.query(

@@ -17,7 +17,7 @@ const express_1 = __importDefault(require("express"));
 const database_1 = require("../database");
 const router = express_1.default.Router();
 // Obtener todas las citas
-router.get('/citas', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const result = yield database_1.pool.query('SELECT * FROM citas');
         res.json(result.rows);
@@ -27,7 +27,7 @@ router.get('/citas', (req, res) => __awaiter(void 0, void 0, void 0, function* (
     }
 }));
 // Agregar una nueva cita
-router.post('/citas', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.post('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { fecha, nombre_paciente, nombre_doctor, motivo, estado } = req.body;
     try {
         const result = yield database_1.pool.query('INSERT INTO citas (fecha, nombre_paciente, nombre_doctor, motivo, estado) VALUES ($1, $2, $3, $4, $5) RETURNING *', [fecha, nombre_paciente, nombre_doctor, motivo, estado]);

@@ -50,11 +50,19 @@ const app = (0, express_1.default)();
 const PORT = process.env.PORT || 3000;
 // ✅ Configurar CORS correctamente
 const corsOptions = {
-    origin: ["http://localhost:5173", "http://localhost:5174"], // Agrega ambos orígenes si el frontend cambia de puerto
+    origin: [
+        "http://localhost:5173",
+        "http://localhost:5174",
+        "https://consultorio6-mega-kato-citys-projects.vercel.app",
+        "https://denuevo123.vercel.app",
+        "https://tuproducto.vercel.app", // Agrega todos los que uses
+        "https://consultorio6-mfni.vercel.app"
+    ],
     methods: ["GET", "POST", "PUT", "DELETE"],
-    allowedHeaders: ["Content-Type", "Authorization"], // Asegura que se permitan los headers correctos
-    credentials: true, // Permitir cookies si se usan
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
 };
+app.use((0, cors_1.default)(corsOptions));
 app.use((0, cors_1.default)(corsOptions));
 app.use(express_1.default.json()); // Permite recibir datos en formato JSON
 // ✅ Ruta de prueba para asegurar que el servidor funciona
@@ -62,7 +70,7 @@ app.get("/", (req, res) => {
     res.send("🚀 Servidor del sistema de consultorio funcionando correctamente.");
 });
 // ✅ Rutas de la API
-app.use("/api/doctores", doctores_routes_1.default);
+app.use("/doctores", doctores_routes_1.default);
 app.use("/api/citas", citas_1.default);
 app.use("/api/pacientes", pacientes_routes_1.default);
 app.use("/api/auth", auth_routes_1.default);

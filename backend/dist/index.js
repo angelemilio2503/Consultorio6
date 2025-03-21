@@ -51,64 +51,73 @@ const cors_1 = __importDefault(require("cors"));
 const dotenv = __importStar(require("dotenv"));
 const helmet_1 = __importDefault(require("helmet"));
 const express_rate_limit_1 = __importDefault(require("express-rate-limit"));
-const database_1 = require("./database"); // ✅ Importar conexión a PostgreSQL
+const database_1 = require("./database");
 const auth_routes_1 = __importDefault(require("./routes/auth.routes"));
 const doctores_routes_1 = __importDefault(require("./routes/doctores.routes"));
 const pacientes_routes_1 = __importDefault(require("./routes/pacientes.routes"));
 const citas_1 = __importDefault(require("./routes/citas"));
-dotenv.config(); // Cargar variables de entorno
-// ✅ Verificación de variables de entorno esenciales
-const requiredEnvVars = ["JWT_SECRET", "ENCRYPTION_SECRET", "DATABASE_URL"];
+dotenv.config(); // Cargar variables .env
+const isProduction = process.env.NODE_ENV === "production";
+// ✅ Validar variables esenciales
+const requiredEnvVars = [
+    "JWT_SECRET",
+    "ENCRYPTION_SECRET",
+    isProduction ? "PROD_DB_HOST" : "LOCAL_DB_HOST",
+];
 const missingEnvVars = requiredEnvVars.filter((varName) => !process.env[varName]);
 if (missingEnvVars.length > 0) {
-    console.error(`❌ Error: Faltan variables de entorno requeridas: ${missingEnvVars.join(", ")}`);
+    console.error(`❌ Faltan variables de entorno: ${missingEnvVars.join(", ")}`);
     process.exit(1);
 }
-console.log("✅ JWT_SECRET loaded:", process.env.JWT_SECRET ? "✔️ Loaded" : "❌ Not Loaded");
+console.log(`✅ Entorno: ${isProduction ? "Producción (Render)" : "Desarrollo (Local)"}`);
+console.log("✅ JWT_SECRET cargado:", process.env.JWT_SECRET ? "✔️ Loaded" : "❌ Not Loaded");
 console.log("✅ ENCRYPTION_SECRET length:", ((_a = process.env.ENCRYPTION_SECRET) === null || _a === void 0 ? void 0 : _a.length) || "❌ Not Loaded");
 // 🚀 Configuración del servidor
 const PORT = process.env.PORT || 3000;
 const app = (0, express_1.default)();
-// 🔒 Configuración de seguridad con Helmet
+// 🔒 Seguridad
 app.use((0, helmet_1.default)());
-// 🔒 Configuración de rate limit para evitar ataques de fuerza bruta
+// 🔒 Rate Limit
 app.use((0, express_rate_limit_1.default)({
-    windowMs: 15 * 60 * 1000, // 15 minutos
-    max: 100, // Límite de 100 solicitudes por IP
+    windowMs: 15 * 60 * 1000,
+    max: 100,
     message: "🚫 Demasiadas solicitudes desde esta IP. Intenta de nuevo más tarde.",
 }));
-// ✅ Configuración de CORS con múltiples orígenes permitidos
+// ✅ CORS dinámico
 const allowedOrigins = [
-    "https://consultorio6-mega.vercel.app", // URL de tu frontend en Vercel
-    "http://localhost:5173" // Para desarrollo local
+    "https://consultorio6-9bn5-5dqiwlto9-kato-citys-projects.vercel.app",
+    "https://consultorio6-mega-kato-citys-projects.vercel.app",
+    "https://denuevo123.vercel.app",
+    "https://consultorio6-lxjeutp28-kato-citys-projects.vercel.app",
+    "http://localhost:5173",
 ];
 app.use((0, cors_1.default)({
-    origin: function (origin, callback) {
+    origin: (origin, callback) => {
         if (!origin || allowedOrigins.includes(origin)) {
             callback(null, true);
         }
         else {
+            console.log("🚫 Origin NO autorizado:", origin);
             callback(new Error("🚫 No autorizado por CORS"));
         }
     },
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     credentials: true,
 }));
-// 🚀 Habilitar el parsing de JSON
+// 🚀 Parseo JSON
 app.use(express_1.default.json());
-// 📌 Definición de rutas
+// ✅ Rutas principales
 app.use("/auth", auth_routes_1.default);
 app.use("/doctores", doctores_routes_1.default);
 app.use("/pacientes", pacientes_routes_1.default);
 app.use("/api", citas_1.default);
-// ✅ Nueva ruta raíz para probar si el backend responde correctamente
+// ✅ Ruta raíz
 app.get("/", (req, res) => {
-    res.json({ message: "🚀 Backend funcionando correctamente en Render" });
+    res.json({ message: `🚀 Backend activo en ${isProduction ? "Render" : "Local"}` });
 });
-// ✅ Ruta de prueba para verificar conexión a la base de datos
+// ✅ Check DB
 app.get("/check-db", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const result = yield database_1.pool.query("SELECT NOW();"); // Prueba simple a PostgreSQL
+        const result = yield database_1.pool.query("SELECT NOW();");
         res.json({ message: "✅ Conexión exitosa a la base de datos", time: result.rows[0] });
     }
     catch (error) {
@@ -116,7 +125,7 @@ app.get("/check-db", (req, res) => __awaiter(void 0, void 0, void 0, function* (
         res.status(500).json({ message: "Error al conectar con la base de datos", error });
     }
 }));
-// 🛑 Middleware global para manejo de errores
+// 🛑 Manejo global de errores
 app.use((err, req, res, next) => {
     console.error("🔥 Error detectado:", err.message);
     res.status(500).json({ message: "Error interno del servidor" });
@@ -124,10 +133,9 @@ app.use((err, req, res, next) => {
 // 🔥 Iniciar servidor
 app.listen(PORT, () => __awaiter(void 0, void 0, void 0, function* () {
     console.log(`✅ Servidor corriendo en http://localhost:${PORT}`);
-    // ✅ Verificar conexión con la base de datos al iniciar
     try {
         yield database_1.pool.query("SELECT NOW();");
-        console.log("✅ Conectado a la base de datos PostgreSQL en Render");
+        console.log(`✅ Conectado a la base de datos PostgreSQL (${isProduction ? "Producción" : "Local"})`);
     }
     catch (error) {
         console.error("❌ No se pudo conectar a la base de datos:", error);
