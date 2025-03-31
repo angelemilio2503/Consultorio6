@@ -16,11 +16,18 @@
   "devDependencies": {
     "@types/crypto-js": "^4.2.2",
     "@types/node": "^22.13.10",
-    "nodemon": "^3.1.9"
+    "nodemon": "^3.1.9",
+    "vite-tsconfig-paths": "^5.1.4"
   },
   "dependencies": {
+    "@types/loglevel": "^1.5.4",
+    "cors": "^2.8.5",
     "crypto-js": "^4.2.0",
     "dotenv": "^16.4.7",
-    "express": "^4.18.2"
+    "express": "^4.18.2",
+    "loglevel": "^1.9.2",
+    "pino": "^9.6.0",
+    "pino-pretty": "^13.0.0",
+    "recharts": "^2.6.2"
   }
 }

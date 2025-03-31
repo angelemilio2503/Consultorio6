@@ -62,9 +62,11 @@ const CrearCitas = () => {
         return;
       }
 
-      await axios.post("http://localhost:3000/api/citas", formData, {
+      const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+      await axios.post(`${API_URL}/api/citas`, formData, {
         headers: { Authorization: `Bearer ${token}` },
       });
+      
 
       setSuccessMessage("Cita creada exitosamente.");
       setTimeout(() => navigate("/citas"), 2000);

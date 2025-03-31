@@ -8,6 +8,10 @@ import AñadirPaciente from "./pages/Pacientes/añadir-pacientes"; // Importa el
 import "leaflet/dist/leaflet.css";
 import "./App.css";
 import React from 'react';
+import Citas from './pages/Projects/citas';
+import CrearCitas from "./pages/Projects/crear-citas";
+
+
 
 function App() {
   return (
@@ -22,6 +26,9 @@ function App() {
           <Route path="/doctores" element={<Doctores />} />
           <Route path="/pacientes" element={<Pacientes />} />
           <Route path="/añadir-pacientes" element={<AñadirPaciente />} />
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/citas" element={<Citas />} />
+          <Route path="/citas" element={<CrearCitas />} />
         </Routes>
       </AnimatePresence>
     </Router>

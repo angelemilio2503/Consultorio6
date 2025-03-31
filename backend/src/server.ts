@@ -41,7 +41,7 @@ app.get("/", (req: Request, res: Response) => {
 // ✅ Rutas de la API
 app.use("/doctores", doctoresRoutes);
 app.use("/api/citas", citasRoutes);
-app.use("/api/pacientes", pacientesRoutes);
+app.use("/pacientes", pacientesRoutes);
 app.use("/api/auth", authRoutes);
 
 // ✅ Conexión a la base de datos

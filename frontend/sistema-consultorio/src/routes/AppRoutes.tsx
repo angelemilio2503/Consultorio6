@@ -14,6 +14,9 @@ import AñadirPaciente from "../pages/Pacientes/añadir-pacientes";
 import CityPharmacyMap from "../pages/Map/CityPharmacyMap"; // Mapa de farmacias
 import Citas from "../pages/Projects/citas"; // Importar la nueva página
 import CrearCitas from "../pages/Projects/crear-citas"; // Importar el nuevo componente
+import NotFound from "../pages/NotFound/NotFound";
+import MapaDelSitio from "../pages/MapaDelSitio/MapaDelSitio";
+
 import React from 'react';
 
 const AppRoutes = () => {
@@ -114,6 +117,9 @@ const AppRoutes = () => {
             </PrivateRoute>
           }
         />
+<Route path="*" element={<NotFound />} />
+
+<Route path="/mapa-del-sitio" element={<MapaDelSitio />} />
 
         {/* Redirección en caso de que la ruta no exista */}
         <Route path="*" element={<Navigate to="/" />} />

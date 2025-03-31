@@ -16,7 +16,6 @@ import backgroundImage from "../../imagenes/consultorio.jpg";
 import { motion } from "framer-motion";
 import React from 'react';
 
-
 // Animaciones de entrada y salida para la página completa
 const pageTransition = {
   initial: { opacity: 0, y: 50 },
@@ -37,71 +36,70 @@ const Login = () => {
   const [role, setRole] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [showSupportInfo, setShowSupportInfo] = useState(false);
 
-    // 🔒 Evitar retroceso a la página anterior después de iniciar sesión
-    useEffect(() => {
+  useEffect(() => {
+    window.history.pushState(null, "", window.location.href);
+    window.onpopstate = () => {
       window.history.pushState(null, "", window.location.href);
-      window.onpopstate = () => {
-        window.history.pushState(null, "", window.location.href);
-      };
-    }, []);
+    };
+  }, []);
 
-const handleLogin = async () => {
-  if (!identifier || !password || !role) {
-    setError("Por favor, completa todos los campos");
-    return;
-  }
+  const toggleSupportInfo = () => {
+    setShowSupportInfo((prev) => !prev);
+  };
 
-  setIsLoading(true);
-  setError(null);
-
-  try {
-    const isEmail = /\S+@\S+\.\S+/.test(identifier);
-    const loginData = isEmail
-      ? { email: identifier, contrasena: password, rol: role }
-      : { usuario: identifier, contrasena: password, rol: role };
-      
-    const API_URL = import.meta.env.VITE_API_URL || "https://consultorio5.onrender.com"; 
-    console.log("📩 Enviando solicitud a:", `${API_URL}/auth/login`);
-    console.log("📌 Datos enviados:", loginData);
-
-    const response = await axios.post(`${API_URL}/auth/login`, loginData, {
-      headers: { "Content-Type": "application/json" },
-    });
-
-    console.log("✅ Respuesta recibida:", response.data);
-
-    const { token, usuario } = response.data;
-
-    if (!token) {
-      throw new Error("Token no recibido en la respuesta del servidor.");
+  const handleLogin = async () => {
+    if (!identifier || !password || !role) {
+      setError("Por favor, completa todos los campos");
+      return;
     }
 
-    // Guardar datos en localStorage
-    localStorage.setItem("token", token);
-    localStorage.setItem("user", JSON.stringify(usuario));
+    setIsLoading(true);
+    setError(null);
 
-    alert(`✅ Inicio de sesión exitoso, bienvenido ${usuario.nombre}`);
-    
-// ✅ Redirección correcta después del login
-localStorage.setItem("token", token);
-localStorage.setItem("auth", "true");
-console.log("✅ Redirigiendo al Dashboard...");
-setTimeout(() => navigate("/dashboard"), 500); // ✅ Asegurar que el almacenamiento se complete
+    try {
+      const isEmail = /\S+@\S+\.\S+/.test(identifier);
+      const loginData = isEmail
+        ? { email: identifier, contrasena: password, rol: role }
+        : { usuario: identifier, contrasena: password, rol: role };
 
+      const API_URL = import.meta.env.VITE_API_URL || "https://consultorio5.onrender.com";
+      console.log("📩 Enviando solicitud a:", `${API_URL}/auth/login`);
+      console.log("📌 Datos enviados:", loginData);
 
-  } catch (error: unknown) {
-    console.error("❌ Error en login:", error);
+      const response = await axios.post(`${API_URL}/auth/login`, loginData, {
+        headers: { "Content-Type": "application/json" },
+      });
 
-    if (axios.isAxiosError(error)) {
-      setError(error.response?.data?.mensaje || "❌ Usuario, contraseña o rol incorrectos");
-    } else {
-      setError("⚠️ Error desconocido al iniciar sesión.");
+      console.log("✅ Respuesta recibida:", response.data);
+
+      const { token, usuario } = response.data;
+
+      if (!token) {
+        throw new Error("Token no recibido en la respuesta del servidor.");
+      }
+
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(usuario));
+      localStorage.setItem("auth", "true");
+
+      alert(`✅ Inicio de sesión exitoso, bienvenido ${usuario.nombre}`);
+      console.log("✅ Redirigiendo al Dashboard...");
+
+      setTimeout(() => navigate("/dashboard"), 500);
+    } catch (error: unknown) {
+      console.error("❌ Error en login:", error);
+
+      if (axios.isAxiosError(error)) {
+        setError(error.response?.data?.mensaje || "❌ Usuario, contraseña o rol incorrectos");
+      } else {
+        setError("⚠️ Error desconocido al iniciar sesión.");
+      }
+    } finally {
+      setIsLoading(false);
     }
-  } finally {
-    setIsLoading(false);
-  }
-};
+  };
 
   return (
     <motion.div
@@ -185,6 +183,21 @@ setTimeout(() => navigate("/dashboard"), 500); // ✅ Asegurar que el almacenami
               >
                 {isLoading ? <CircularProgress size={24} color="inherit" /> : "Ingresar"}
               </Button>
+
+              <Typography
+                variant="body2"
+                sx={{ mt: 2, color: "#0090FF", cursor: "pointer", textDecoration: "underline" }}
+                onClick={toggleSupportInfo}
+              >
+                ¿Olvidaste tu contraseña?
+              </Typography>
+
+              {showSupportInfo && (
+                <Alert severity="info" sx={{ mt: 2 }}>
+                  📞 Contacta al desarrollador para restablecer tu contraseña: <br />
+                  <strong>+52 826 169 2749</strong>
+                </Alert>
+              )}
             </Paper>
           </motion.div>
         </Container>

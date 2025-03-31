@@ -1,28 +1,28 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import path from 'path';
+import tsconfigPaths from 'vite-tsconfig-paths';
 
-// https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react()],
-    resolve: {
+  plugins: [react(), tsconfigPaths()],
+  resolve: {
     alias: {
-      '@mui/material': '@mui/material/legacy'
-    }
+      '@mui/material': '@mui/material/legacy',
+      '@': path.resolve(__dirname, 'src'), // Esto resuelve el alias @ hacia src/
+    },
   },
   server: {
-    watch: {
-      usePolling: true
-    },
+    watch: { usePolling: true },
     host: true,
     port: 5173,
     proxy: {
-      '/auth': 'http://localhost:3000', // Redirige las solicitudes al backend
+      '/auth': 'http://localhost:3000',
     },
   },
   optimizeDeps: {
-    include: ["@mui/material", "framer-motion"], // Asegura que se incluyan correctamente
+    include: ['@mui/material', 'framer-motion'],
   },
   build: {
-    chunkSizeWarningLimit: 1000, // Para evitar los warnings de tamaño
-  }
+    chunkSizeWarningLimit: 1000,
+  },
 });

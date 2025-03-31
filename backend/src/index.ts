@@ -3,108 +3,85 @@ import cors from "cors";
 import * as dotenv from "dotenv";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
-import { pool } from "./database";
 import authRoutes from "./routes/auth.routes";
+import indexRoutes from "./routes/index";
 import doctoresRoutes from "./routes/doctores.routes";
 import pacientesRoutes from "./routes/pacientes.routes";
-import citasRoutes from "./routes/citas";
+import citasRoutes from "./routes/citas.routes";
 
-dotenv.config(); // Cargar variables .env
 
-const isProduction = process.env.NODE_ENV === "production";
+dotenv.config();
 
-// ✅ Validar variables esenciales
-const requiredEnvVars = [
-  "JWT_SECRET",
-  "ENCRYPTION_SECRET",
-  isProduction ? "PROD_DB_HOST" : "LOCAL_DB_HOST",
-];
-
-const missingEnvVars = requiredEnvVars.filter((varName) => !process.env[varName]);
-
-if (missingEnvVars.length > 0) {
-  console.error(`❌ Faltan variables de entorno: ${missingEnvVars.join(", ")}`);
+// ✅ Verificación de variables de entorno
+if (!process.env.JWT_SECRET || !process.env.ENCRYPTION_SECRET) {
+  console.error("❌ Error: Faltan variables de entorno requeridas.");
   process.exit(1);
 }
 
-console.log(`✅ Entorno: ${isProduction ? "Producción (Render)" : "Desarrollo (Local)"}`);
-console.log("✅ JWT_SECRET cargado:", process.env.JWT_SECRET ? "✔️ Loaded" : "❌ Not Loaded");
+console.log("✅ JWT_SECRET loaded:", process.env.JWT_SECRET ? "✔️ Loaded" : "❌ Not Loaded");
 console.log("✅ ENCRYPTION_SECRET length:", process.env.ENCRYPTION_SECRET?.length || "❌ Not Loaded");
 
-// 🚀 Configuración del servidor
 const PORT = process.env.PORT || 3000;
 const app = express();
 
-// 🔒 Seguridad
+// 🔒 Configuración de seguridad con Helmet
 app.use(helmet());
 
-// 🔒 Rate Limit
-app.use(rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
+// 🔒 Configuración de rate limit
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 100, // Límite de 100 solicitudes por IP
   message: "🚫 Demasiadas solicitudes desde esta IP. Intenta de nuevo más tarde.",
-}));
+});
+app.use(limiter);
 
+// 🛡️ Configuración de CORS
+app.use(
+  cors({
+    origin: "http://localhost:5173", // Actualiza esto según el frontend en producción
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    credentials: true,
+  })
+);
 
-app.use(cors({
-  origin: 'https://consultorio6-lxjeutp28-kato-citys-projects.vercel.app',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  credentials: true
-}));
-
-// 🔥 Muy importante para manejar el preflight de CORS
-app.options('*', cors({
-  origin: 'https://consultorio6-lxjeutp28-kato-citys-projects.vercel.app',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  credentials: true
-}));
-
-
+// 🚀 Habilitar el parsing de JSON
 app.use(express.json());
 
-
-// 🚀 Parseo JSON
-app.use(express.json());
-
-// ✅ Rutas principales
+// 📌 Definición de rutas
 app.use("/auth", authRoutes);
 app.use("/doctores", doctoresRoutes);
 app.use("/pacientes", pacientesRoutes);
-app.use("/api", citasRoutes);
+app.use("/", indexRoutes);
+app.use('/api', citasRoutes);
 
-// ✅ Ruta raíz
-app.get("/", (req: Request, res: Response) => {
-  res.json({ message: `🚀 Backend activo en ${isProduction ? "Render" : "Local"}` });
-});
+// Permitir solicitudes desde localhost:5173
+app.use(cors({
+  origin: 'http://localhost:5173',
+  methods: 'GET,POST,PUT,DELETE',
+  credentials: true
+}));
 
-// ✅ Check DB
-app.get("/check-db", async (req: Request, res: Response) => {
-  try {
-    const result = await pool.query("SELECT NOW();");
-    res.json({ message: "✅ Conexión exitosa a la base de datos", time: result.rows[0] });
-  } catch (error) {
-    console.error("❌ Error en la conexión a la base de datos:", error);
-    res.status(500).json({ message: "Error al conectar con la base de datos", error });
-  }
-});
+app.use("/citas", citasRoutes);
 
-// 🛑 Manejo global de errores
+// 🛑 Middleware global para manejo de errores
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   console.error("🔥 Error detectado:", err.message);
   res.status(500).json({ message: "Error interno del servidor" });
 });
 
 // 🔥 Iniciar servidor
-app.listen(PORT, async () => {
+app.listen(PORT, () => {
   console.log(`✅ Servidor corriendo en http://localhost:${PORT}`);
-
-  try {
-    await pool.query("SELECT NOW();");
-    console.log(`✅ Conectado a la base de datos PostgreSQL (${isProduction ? "Producción" : "Local"})`);
-  } catch (error) {
-    console.error("❌ No se pudo conectar a la base de datos:", error);
-  }
 }).on("error", (err) => {
   console.error("❌ Error al iniciar el servidor:", err);
   process.exit(1);
 });
+
+// Configurar CORS para permitir varios orígenes
+const corsOptions = {
+  origin: ['http://localhost:5173', 'http://localhost:5174'], // Permitir ambos orígenes
+  methods: 'GET,POST,PUT,DELETE',
+  credentials: true, // Permitir cookies si es necesario
+};
+
+app.use(cors(corsOptions));

@@ -1,37 +1,21 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import {
-  AppBar,
-  Toolbar,
-  Typography,
-  Box,
-  Button,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  CircularProgress,
-  Alert,
-  IconButton,
-  InputBase,
+  AppBar, Toolbar, Typography, Box, Button, Table, TableBody, TableCell,
+  TableContainer, TableHead, TableRow, Paper, CircularProgress, Alert, IconButton, InputBase
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import React from 'react';
+import React from "react";
+import log from "@/utils/logger";
 
-
-// Animaciones
 const pageTransition = {
   initial: { opacity: 0, y: 50 },
   animate: { opacity: 1, y: 0, transition: { duration: 0.8 } },
   exit: { opacity: 0, y: -50, transition: { duration: 0.5 } },
 };
 
-// Interfaz de Cita
 interface Cita {
   id: number;
   fecha: string;
@@ -47,58 +31,74 @@ const Citas = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [isSearchVisible, setIsSearchVisible] = useState(false);
+  const [customErrorLogs, setCustomErrorLogs] = useState<string[]>([]);  // ✅ Guardar los errores
 
   useEffect(() => {
     const fetchCitas = async () => {
       const token = localStorage.getItem("token");
 
       if (!token) {
+        log.warn("Intento de acceso sin token.");
         setError("No tienes acceso. Inicia sesión.");
         setLoading(false);
         return;
       }
 
       try {
-        const API_URL = import.meta.env.VITE_API_URL || "https://consultorio5.onrender.com/api";
+        const API_URL = import.meta.env.VITE_API_URL || "https://consultorio5.onrender.com";
+        log.info("Iniciando solicitud a:", API_URL);
 
         const response = await axios.get(`${API_URL}/citas`, {
           headers: { Authorization: `Bearer ${token}` },
         });
+
+        log.debug("Datos obtenidos:", response.data);
         setCitas(response.data);
-      } catch {
+      } catch (err: any) {
+        const errorMessage = err?.response?.data?.message || err.message || 'Error desconocido';
+        log.error("Error al obtener la lista de citas:", errorMessage);
+        setCustomErrorLogs((prev) => [...prev, `Error al obtener la lista de citas: ${errorMessage}`]);  // ✅ Guardar error
         setError("Error al obtener la lista de citas.");
       } finally {
         setLoading(false);
+        log.info("Finalizó la carga de citas.");
       }
     };
 
     fetchCitas();
   }, []);
 
+  // ✅ Función para descargar los errores
+  const descargarErrores = () => {
+    if (customErrorLogs.length === 0) {
+      alert("No hay errores para descargar.");
+      return;
+    }
+
+    const contenido = customErrorLogs.join("\n");
+    const blob = new Blob([contenido], { type: "text/plain" });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `errores_${new Date().toISOString()}.txt`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
+
   return (
     <motion.div variants={pageTransition} initial="initial" animate="animate" exit="exit">
-      {/* Barra de navegación */}
       <AppBar position="static" sx={{ backgroundColor: "rgb(0, 111, 191)" }}>
         <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
           <Typography variant="h6" sx={{ color: "#FFFFFF", fontWeight: "bold" }}>
             Gestión de Citas
           </Typography>
-
-          {/* Barra de navegación */}
           <Box sx={{ display: "flex", gap: 2 }}>
-            <Button sx={{ color: "#FFFFFF" }} onClick={() => navigate("/dashboard")}>
-              Dashboard Principal
-            </Button>
-            <Button sx={{ color: "#FFFFFF" }} onClick={() => navigate("/doctores")}>
-              Doctores
-            </Button>
-            <Button sx={{ color: "#FFFFFF" }} onClick={() => navigate("/pacientes")}>
-              Pacientes
-            </Button>
+            <Button sx={{ color: "#FFFFFF" }} onClick={() => navigate("/dashboard")}>Dashboard Principal</Button>
+            <Button sx={{ color: "#FFFFFF" }} onClick={() => navigate("/doctores")}>Doctores</Button>
+            <Button sx={{ color: "#FFFFFF" }} onClick={() => navigate("/pacientes")}>Pacientes</Button>
             <Button sx={{ color: "#FFFFFF" }}>Departamentos</Button>
           </Box>
 
-          {/* Barra de búsqueda interactiva */}
           <Box
             sx={{
               display: "flex",
@@ -112,44 +112,28 @@ const Citas = () => {
             onMouseEnter={() => setIsSearchVisible(true)}
             onMouseLeave={() => setIsSearchVisible(false)}
           >
-            <IconButton>
-              <SearchIcon sx={{ color: isSearchVisible ? "#0090FF" : "white" }} />
-            </IconButton>
+            <IconButton><SearchIcon sx={{ color: isSearchVisible ? "#0090FF" : "white" }} /></IconButton>
             {isSearchVisible && (
-              <InputBase
-                placeholder="Buscar..."
-                sx={{
-                  ml: 1,
-                  flex: 1,
-                  color: "black",
-                  "& input": {
-                    padding: "5px",
-                  },
-                }}
-              />
+              <InputBase placeholder="Buscar..." sx={{ ml: 1, flex: 1, color: "black", "& input": { padding: "5px" } }} />
             )}
           </Box>
         </Toolbar>
       </AppBar>
 
-      {/* Contenido principal */}
       <Box sx={{ padding: 4 }}>
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <Typography variant="h4" sx={{ fontWeight: "bold", marginBottom: 2 }}>
-            Lista de Citas
-          </Typography>
-
-          {/* Botón para crear nueva cita */}
+          <Typography variant="h4" sx={{ fontWeight: "bold", marginBottom: 2 }}>Lista de Citas</Typography>
           <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
-            <Button
-              variant="contained"
-              color="success"
-              onClick={() => navigate("/crear-citas")}
-            >
-              Crear Cita
-            </Button>
+            <Button variant="contained" color="success" onClick={() => navigate("/crear-citas")}>Crear Cita</Button>
           </motion.div>
         </Box>
+
+        {/* ✅ Botón que descarga los errores */}
+        <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
+          <Button variant="outlined" color="error" onClick={descargarErrores} sx={{ marginBottom: 2 }}>
+            Descargar Logs de Errores
+          </Button>
+        </motion.div>
 
         {loading ? (
           <CircularProgress />
