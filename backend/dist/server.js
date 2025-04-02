@@ -72,7 +72,7 @@ app.get("/", (req, res) => {
 // ✅ Rutas de la API
 app.use("/doctores", doctores_routes_1.default);
 app.use("/api/citas", citas_1.default);
-app.use("/api/pacientes", pacientes_routes_1.default);
+app.use("/pacientes", pacientes_routes_1.default);
 app.use("/api/auth", auth_routes_1.default);
 // ✅ Conexión a la base de datos
 database_1.pool

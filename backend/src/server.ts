@@ -3,7 +3,7 @@ import * as dotenv from "dotenv";
 import cors from "cors";
 import { pool } from "./database";
 import doctoresRoutes from "./routes/doctores.routes";
-import citasRoutes from "./routes/citas";
+import citasRoutes from "./routes/citas.routes"; // ✅ BIEN
 import pacientesRoutes from "./routes/pacientes.routes";
 import authRoutes from "./routes/auth.routes";
 
@@ -28,8 +28,6 @@ const corsOptions = {
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
 };
-app.use(cors(corsOptions));
-
 app.use(cors(corsOptions));
 app.use(express.json()); // Permite recibir datos en formato JSON
 
